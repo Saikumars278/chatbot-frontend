@@ -1,0 +1,149 @@
+.payment-page {
+  min-height: 100vh;
+  background: #f3f4f6;
+  font-family: Arial, sans-serif;
+  padding: 30px;
+}
+
+.payment-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #111827;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.payment-container h1 {
+  text-align: center;
+  color: #111827;
+  margin-bottom: 30px;
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.card {
+  position: relative;
+  width: 280px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+.featured-card {
+  background: #111827;
+  color: #ffffff;
+}
+
+.badge {
+  display: inline-block;
+  background: #facc15;
+  color: #111827;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.desc {
+  color: #6b7280;
+  min-height: 45px;
+}
+
+.featured-card .desc {
+  color: #d1d5db;
+}
+
+.card h3 {
+  margin: 20px 0 5px;
+  font-size: 36px;
+}
+
+.note {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.featured-card .note {
+  color: #d1d5db;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  background: #111827;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 15px 0;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.featured-card .btn {
+  background: #ffffff;
+  color: #111827;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn.disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.card ul {
+  padding-left: 0;
+  list-style: none;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.card li {
+  color: #374151;
+  font-size: 14px;
+}
+
+.featured-card li {
+  color: #f3f4f6;
+}
+
+@media (max-width: 768px) {
+  .payment-page {
+    padding: 20px;
+  }
+
+  .cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 340px;
+  }
+}
