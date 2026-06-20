@@ -1,10 +1,40 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "../Style/Login.css";
 
 function Login() {
-  const handleLogin = (e) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    alert("Login successful");
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        localStorage.setItem("user_email", email);
+        navigate("/chat");
+      } else {
+        setError(data.message || "Invalid email or password");
+      }
+    } catch (err) {
+      setError("Failed to connect to server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -22,13 +52,29 @@ function Login() {
         <h2>Login</h2>
         <p className="sub-text">Sign in to your account</p>
 
+        {error && <div style={{ color: "#ef4444", marginBottom: "15px", fontWeight: "600", fontSize: "14px" }}>{error}</div>}
+
         <label>Email</label>
-        <input type="email" placeholder="Enter email" required />
+        <input 
+          type="email" 
+          placeholder="Enter email" 
+          required 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         <label>Password</label>
-        <input type="password" placeholder="Enter password" required />
+        <input 
+          type="password" 
+          placeholder="Enter password" 
+          required 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
 
         <p className="switch-text">
           Don&apos;t have an account? <Link to="/signup">Signup</Link>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useChat } from "../context/ChatContext";
 import "./Sidebar.css";
 
 function Sidebar() {
@@ -7,21 +8,15 @@ function Sidebar() {
   const [menuIndex, setMenuIndex] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const [chats, setChats] = useState([
-    "React chatbot workflow",
-    "Login page design",
-    "Signup page design",
-    "API integration help",
-    "Project setup guide",
-  ]);
+  const { chats, activeChatId, createNewChat, deleteChat, selectChat } = useChat();
 
   const toggleMenu = (index) => {
     setUserMenuOpen(false);
     setMenuIndex(menuIndex === index ? null : index);
   };
 
-  const handleDelete = (index) => {
-    setChats(chats.filter((_, i) => i !== index));
+  const handleDelete = (id, index) => {
+    deleteChat(id);
     setMenuIndex(null);
   };
 
@@ -83,6 +78,7 @@ function Sidebar() {
             className="new-chat-btn"
             onClick={(e) => {
               e.stopPropagation();
+              createNewChat();
               setMenuIndex(null);
               setUserMenuOpen(false);
             }}
@@ -96,17 +92,18 @@ function Sidebar() {
 
           {chats.map((chat, index) => (
             <div
-              className={`chat-item ${menuIndex === index ? "menu-open" : ""}`}
-              key={index}
+              className={`chat-item ${activeChatId === chat.id ? "active" : ""} ${menuIndex === index ? "menu-open" : ""}`}
+              key={chat.id}
               onClick={(e) => {
                 e.stopPropagation();
+                selectChat(chat.id);
                 setMenuIndex(null);
                 setUserMenuOpen(false);
               }}
             >
               <div className="chat-left">
                 <span className="chat-icon">💬</span>
-                <span className="chat-title">{chat}</span>
+                <span className="chat-title">{chat.title}</span>
               </div>
 
               <button
@@ -129,7 +126,7 @@ function Sidebar() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(index);
+                      handleDelete(chat.id, index);
                     }}
                   >
                     Delete
