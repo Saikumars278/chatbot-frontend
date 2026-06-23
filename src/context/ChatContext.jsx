@@ -2,9 +2,11 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const ChatContext = createContext();
 
+const API = "http://localhost:8000/api";
+
 export function ChatProvider({ children }) {
+  // ── Chat list ────────────────────────────────────────────────────────────
   const [chats, setChats] = useState(() => {
-    // Clear old localstorage dummy items once
     if (!localStorage.getItem("smartbot_chats_cleaned")) {
       localStorage.removeItem("smartbot_chats");
       localStorage.setItem("smartbot_chats_cleaned", "true");
@@ -57,6 +59,72 @@ export function ChatProvider({ children }) {
     setActiveChatId(id);
   };
 
+  const clearAllChats = () => {
+    setChats([]);
+    setActiveChatId(null);
+    localStorage.removeItem("smartbot_chats");
+    localStorage.removeItem("smartbot_active_chat_id");
+  };
+
+  // ── Auth user ────────────────────────────────────────────────────────────
+  const [authUser, setAuthUser] = useState(null);   // { name, email, plan, avatar }
+  const [authLoading, setAuthLoading] = useState(true);
+
+  const fetchAuthUser = async () => {
+    try {
+      const res = await fetch(`${API}/user-profile/`, { credentials: "include" });
+      const data = await res.json();
+      setAuthUser(data.success ? data.user : null);
+    } catch {
+      setAuthUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchAuthUser(); }, []);
+
+  // ── Chat / access status ─────────────────────────────────────────────────
+  const [chatStatus, setChatStatus] = useState({
+    remaining_chats: 2,
+    limit_reached: false,
+    is_logged_in: false,
+    is_paid: false,
+    status_text: "2 remaining free chats"
+  });
+
+  const fetchChatStatus = async () => {
+    try {
+      const res = await fetch(`${API}/chat-status/`, {
+        credentials: "include"
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.is_logged_in) {
+          localStorage.removeItem("smartbot_guest_messages_count");
+          setChatStatus(data);
+        } else {
+          const localCount = parseInt(localStorage.getItem("smartbot_guest_messages_count") || "0", 10);
+          const effectiveCount = Math.max(data.guest_count || 0, localCount);
+          const remaining = Math.max(0, 2 - effectiveCount);
+          setChatStatus({
+            ...data,
+            guest_count: effectiveCount,
+            remaining_chats: remaining,
+            limit_reached: effectiveCount >= 2,
+            status_text: remaining > 0 ? `${remaining} remaining free chats` : "Login required"
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching chat status:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchChatStatus();
+  }, []);
+
   const addMessageToActiveChat = async (userText) => {
     let currentActiveId = activeChatId;
     
@@ -99,15 +167,20 @@ export function ChatProvider({ children }) {
 
     // 2. Fetch reply from backend server api
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/messages/send/", {
+      const response = await fetch(`${API}/messages/send/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
+        credentials: "include",
         body: JSON.stringify({ message: userText })
       });
       const data = await response.json();
       if (data.success && data.bot_message) {
+        if (!chatStatus.is_logged_in) {
+          const currentCount = parseInt(localStorage.getItem("smartbot_guest_messages_count") || "0", 10);
+          localStorage.setItem("smartbot_guest_messages_count", (currentCount + 1).toString());
+        }
         setChats((prevChats) =>
           prevChats.map((c) => {
             if (c.id === currentActiveId) {
@@ -140,6 +213,8 @@ export function ChatProvider({ children }) {
           return c;
         })
       );
+    } finally {
+      fetchChatStatus();
     }
   };
 
@@ -152,7 +227,15 @@ export function ChatProvider({ children }) {
         createNewChat,
         deleteChat,
         selectChat,
-        addMessageToActiveChat
+        clearAllChats,
+        addMessageToActiveChat,
+        // auth
+        authUser,
+        authLoading,
+        fetchAuthUser,
+        // limits
+        chatStatus,
+        fetchChatStatus
       }}
     >
       {children}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useChat } from "../context/ChatContext";
 import "../Style/Login.css";
 
 function Login() {
@@ -8,6 +9,7 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { fetchAuthUser, fetchChatStatus } = useChat();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -15,17 +17,21 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+      const response = await fetch("http://localhost:8000/api/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
       if (data.success) {
         localStorage.setItem("user_email", email);
+        localStorage.removeItem("smartbot_guest_messages_count");
+        await fetchAuthUser();
+        await fetchChatStatus();
         navigate("/chat");
       } else {
         setError(data.message || "Invalid email or password");

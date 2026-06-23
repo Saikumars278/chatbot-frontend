@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useChat } from "../context/ChatContext";
 import "./Sidebar.css";
+
+// Full absolute URL so calls reach the Django backend (port 8000),
+// not the Vite dev server (port 5173).
+const API_BASE = "http://localhost:8000/api";
 
 function Sidebar() {
   const [open, setOpen] = useState(false);
   const [menuIndex, setMenuIndex] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const { chats, activeChatId, createNewChat, deleteChat, selectChat } = useChat();
+  const navigate = useNavigate();
+
+  const { chats, activeChatId, createNewChat, deleteChat, selectChat, authUser, authLoading, fetchAuthUser, fetchChatStatus, clearAllChats } = useChat();
 
   const toggleMenu = (index) => {
     setUserMenuOpen(false);
@@ -18,6 +24,30 @@ function Sidebar() {
   const handleDelete = (id, index) => {
     deleteChat(id);
     setMenuIndex(null);
+  };
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      await fetch(`${API_BASE}/logout/`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+
+    localStorage.removeItem("smartbot_guest_messages_count");
+    localStorage.removeItem("user_email");
+    clearAllChats();
+    await fetchAuthUser();
+    await fetchChatStatus();
+    setOpen(false);
+    setMenuIndex(null);
+    setUserMenuOpen(false);
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -138,80 +168,67 @@ function Sidebar() {
         </div>
 
         <div className="sidebar-bottom">
-          <Link
-            to="/login"
-            className="sidebar-link"
-            onClick={() => {
-              setOpen(false);
-              setMenuIndex(null);
-              setUserMenuOpen(false);
-            }}
-          >
-            Login
-          </Link>
-
-          <Link
-            to="/signup"
-            className="sidebar-link"
-            onClick={() => {
-              setOpen(false);
-              setMenuIndex(null);
-              setUserMenuOpen(false);
-            }}
-          >
-            Signup
-          </Link>
-
-          <div className="user-menu-wrapper">
-            <div
-              className={`user-box ${userMenuOpen ? "active" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenuIndex(null);
-                setUserMenuOpen(!userMenuOpen);
-              }}
-            >
-              <div className="user-avatar">D</div>
-
-              <div>
-                <h4>Dhanush</h4>
-                <p>Free Plan</p>
-              </div>
-
-              <span className="user-arrow">{userMenuOpen ? "⌃" : "⌄"}</span>
-            </div>
-
-            {userMenuOpen && (
-              <div
-                className="user-dropdown"
-                onClick={(e) => e.stopPropagation()}
+          {/* Show Login/Signup only when there is no logged-in user */}
+          {!authLoading && !authUser && (
+            <>
+              <Link
+                to="/login"
+                className="sidebar-link"
+                onClick={() => {
+                  setOpen(false);
+                  setMenuIndex(null);
+                  setUserMenuOpen(false);
+                }}
               >
+                Login
+              </Link>
+
+              <Link
+                to="/signup"
+                className="sidebar-link"
+                onClick={() => {
+                  setOpen(false);
+                  setMenuIndex(null);
+                  setUserMenuOpen(false);
+                }}
+              >
+                Signup
+              </Link>
+            </>
+          )}
+
+          {/* Show real user section only when logged in */}
+          {!authLoading && authUser && (
+            <div className="user-profile-section">
+              <div className="user-profile-info">
+                <div className="user-avatar">{authUser.avatar}</div>
+                <div className="user-details">
+                  <h4>{authUser.name}</h4>
+                  <p className="user-email" title={authUser.email}>{authUser.email}</p>
+                  <p className="user-plan-badge">{authUser.plan}</p>
+                </div>
+              </div>
+              <div className="user-profile-actions">
                 <Link
                   to="/payment"
-                  className="user-dropdown-link payment-link"
+                  className="sidebar-action-btn payment-btn"
                   onClick={() => {
                     setOpen(false);
                     setMenuIndex(null);
-                    setUserMenuOpen(false);
                   }}
                 >
-                  💳 Payment
+                  💳 Upgrade
                 </Link>
-
-                <Link
-                  to="/login"
-                  className="user-dropdown-link"
-                  onClick={() => {
-                    setOpen(false);
-                    setMenuIndex(null);
-                    setUserMenuOpen(false);
-                  }}
+                <button
+                  type="button"
+                  className="sidebar-action-btn logout-btn"
+                  onClick={handleLogout}
                 >
                   🚪 Logout
-                </Link>
+                </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </aside>
     </>

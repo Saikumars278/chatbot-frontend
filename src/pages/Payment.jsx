@@ -1,16 +1,29 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useChat } from "../context/ChatContext";
+import { loadRazorpayScript } from "../utils/razorpay";
 import "../Style/Payment.css";
 
 function Payment() {
+  const { authUser, authLoading } = useChat();
+  const navigate = useNavigate();
+
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!authLoading && !authUser) {
+      navigate("/chat");
+    }
+  }, [authUser, authLoading, navigate]);
+
+  useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/plans/");
+        const response = await fetch("http://localhost:8000/api/plans/", {
+          credentials: "include",
+        });
         const data = await response.json();
         if (data.success) {
           setPlans(data.plans);
@@ -27,26 +40,74 @@ function Payment() {
   }, []);
 
   const handleUpgrade = async (planId) => {
-    const email = localStorage.getItem("user_email") || "Dhanush";
+    const email = authUser ? authUser.email : (localStorage.getItem("user_email") || "Dhanush");
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/upgrade-plan/", {
+      const res = await loadRazorpayScript();
+      if (!res) {
+        alert("Razorpay SDK failed to load. Are you offline?");
+        return;
+      }
+
+      // 1. Create order
+      const orderResponse = await fetch("http://localhost:8000/api/create-razorpay-order/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          plan_id: planId,
-          user_name: email,
-        }),
+        credentials: "include",
+        body: JSON.stringify({ plan_id: planId }),
       });
-      const data = await response.json();
-      if (data.success) {
-        alert(`Successfully upgraded to ${data.subscription.plan}!`);
-      } else {
-        alert(data.message || "Failed to upgrade plan");
+      const orderData = await orderResponse.json();
+
+      if (!orderData.success) {
+        alert(orderData.message || "Failed to initiate payment");
+        return;
       }
+
+      // 2. Open Razorpay Checkout
+      const options = {
+        key: orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "AI Chatbot",
+        description: "Plan Upgrade",
+        order_id: orderData.order_id,
+        handler: async function (response) {
+          // 3. Verify Payment
+          try {
+            const verifyResponse = await fetch("http://localhost:8000/api/verify-razorpay-payment/", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                plan_id: planId,
+              }),
+            });
+            const verifyData = await verifyResponse.json();
+            if (verifyData.success) {
+              alert(`Successfully upgraded to ${verifyData.subscription.plan}!`);
+            } else {
+              alert(verifyData.message || "Payment verification failed");
+            }
+          } catch (err) {
+            alert("Error verifying payment");
+          }
+        },
+        prefill: {
+          email: email,
+        },
+        theme: {
+          color: "#2563eb",
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
     } catch (err) {
-      alert("Error upgrading plan. Please try again.");
+      alert("Error initiating payment. Please try again.");
     }
   };
 
