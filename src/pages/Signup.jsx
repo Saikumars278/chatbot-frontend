@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useChat } from "../context/ChatContext";
+import { API_BASE_URL } from "../config";
 import "../Style/Signup.css";
 
 function Signup() {
@@ -35,7 +36,7 @@ function Signup() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/send-signup-otp/", {
+      const response = await fetch(`${API_BASE_URL}/send-signup-otp/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +81,7 @@ function Signup() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/verify-signup-otp/", {
+      const response = await fetch(`${API_BASE_URL}/verify-signup-otp/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +126,7 @@ function Signup() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/signup/", {
+      const response = await fetch(`${API_BASE_URL}/signup/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

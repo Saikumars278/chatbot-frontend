@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Sidebar from "../components/Sidebar";
 import { useChat } from "../context/ChatContext";
 import { loadRazorpayScript } from "../utils/razorpay";
+import { API_BASE_URL } from "../config";
 import "../Style/ChatDashboard.css";
 import { Link } from "react-router-dom";
 
@@ -84,7 +85,7 @@ function ChatDashboard() {
     if (chatStatus.limit_reached && chatStatus.is_logged_in && !chatStatus.is_paid) {
       const fetchPlans = async () => {
         try {
-          const res = await fetch("http://localhost:8000/api/plans/", { credentials: "include" });
+          const res = await fetch(`${API_BASE_URL}/plans/`, { credentials: "include" });
           const data = await res.json();
           if (data.success) {
             setPlans(data.plans);
@@ -102,7 +103,7 @@ function ChatDashboard() {
     setModalError("");
     setModalLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/api/login/", {
+      const response = await fetch(`${API_BASE_URL}/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,7 +138,7 @@ function ChatDashboard() {
         return;
       }
 
-      const orderResponse = await fetch("http://localhost:8000/api/create-razorpay-order/", {
+      const orderResponse = await fetch(`${API_BASE_URL}/create-razorpay-order/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -159,7 +160,7 @@ function ChatDashboard() {
         order_id: orderData.order_id,
         handler: async function (response) {
           try {
-            const verifyResponse = await fetch("http://localhost:8000/api/verify-razorpay-payment/", {
+            const verifyResponse = await fetch(`${API_BASE_URL}/verify-razorpay-payment/`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",

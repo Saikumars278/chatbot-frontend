@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useChat } from "../context/ChatContext";
 import { loadRazorpayScript } from "../utils/razorpay";
+import { API_BASE_URL } from "../config";
 import "../Style/Payment.css";
 
 function Payment() {
@@ -21,7 +22,7 @@ function Payment() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/plans/", {
+        const response = await fetch(`${API_BASE_URL}/plans/`, {
           credentials: "include",
         });
         const data = await response.json();
@@ -49,7 +50,7 @@ function Payment() {
       }
 
       // 1. Create order
-      const orderResponse = await fetch("http://localhost:8000/api/create-razorpay-order/", {
+      const orderResponse = await fetch(`${API_BASE_URL}/create-razorpay-order/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +76,7 @@ function Payment() {
         handler: async function (response) {
           // 3. Verify Payment
           try {
-            const verifyResponse = await fetch("http://localhost:8000/api/verify-razorpay-payment/", {
+            const verifyResponse = await fetch(`${API_BASE_URL}/verify-razorpay-payment/`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",

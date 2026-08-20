@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE_URL as API } from "../config";
 
 const ChatContext = createContext();
 
-const API = "http://localhost:8000/api";
 
 export function ChatProvider({ children }) {
   // ── Chat list ────────────────────────────────────────────────────────────

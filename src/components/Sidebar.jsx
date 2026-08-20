@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useChat } from "../context/ChatContext";
+import { API_BASE_URL as API_BASE } from "../config";
 import "./Sidebar.css";
 
-// Full absolute URL so calls reach the Django backend (port 8000),
-// not the Vite dev server (port 5173).
-const API_BASE = "http://localhost:8000/api";
 
 function Sidebar({ open: propOpen, setOpen: propSetOpen }) {
   const [internalOpen, setInternalOpen] = useState(false);

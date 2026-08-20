@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useChat } from "../context/ChatContext";
+import { API_BASE_URL } from "../config";
 import "../Style/Signup.css";
 
 function Login() {
@@ -17,7 +18,8 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/login/", {
+      const response = await fetch(`${API_BASE_URL}/login/`, {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",
