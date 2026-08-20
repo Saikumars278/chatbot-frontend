@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useChat } from "../context/ChatContext";
-import "../Style/Login.css";
+import "../Style/Signup.css";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -44,48 +44,65 @@ function Login() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-left">
-        <h1>Welcome Back</h1>
-        <p>Login to continue your chatbot conversation workflow.</p>
+    <div className="modern-signup-container">
+      {/* Background Ambient Orbs */}
+      <div className="ambient-orb orb-1"></div>
+      <div className="ambient-orb orb-2"></div>
+      <div className="ambient-orb orb-3"></div>
 
-        <div className="step-box">1. Enter email and password</div>
-        <div className="step-box">2. Verify your account</div>
-        <div className="step-box">3. Open chatbot dashboard</div>
+      <div className="signup-glass-card">
+        <div className="signup-card-header">
+          <div className="brand-badge-box">
+            <span className="brand-badge-icon">🤖</span>
+            <span className="brand-badge-text">SmartBot AI</span>
+          </div>
+
+          <h1 className="header-title">Welcome Back</h1>
+          <p className="header-subtitle">Log in to your SmartBot AI Workspace</p>
+        </div>
+
+        <div className="signup-card-body">
+          <form className="step-form" onSubmit={handleLogin}>
+            {error && <div className="status-alert error">⚠️ {error}</div>}
+
+            <div className="input-group">
+              <label>Email Address</label>
+              <div className="field-wrapper">
+                <span className="icon">✉️</span>
+                <input
+                  type="email"
+                  placeholder="name@company.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label>Password</label>
+              <div className="field-wrapper">
+                <span className="icon">🔒</span>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="primary-cta-btn" disabled={loading}>
+              {loading ? "Logging in..." : "Log In to Workspace →"}
+            </button>
+
+            <div className="card-footer-link">
+              Don&apos;t have an account? <Link to="/signup">Sign up here</Link>
+            </div>
+          </form>
+        </div>
       </div>
-
-      <form className="auth-card" onSubmit={handleLogin}>
-        <h2>Login</h2>
-        <p className="sub-text">Sign in to your account</p>
-
-        {error && <div style={{ color: "#ef4444", marginBottom: "15px", fontWeight: "600", fontSize: "14px" }}>{error}</div>}
-
-        <label>Email</label>
-        <input 
-          type="email" 
-          placeholder="Enter email" 
-          required 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <label>Password</label>
-        <input 
-          type="password" 
-          placeholder="Enter password" 
-          required 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-
-        <p className="switch-text">
-          Don&apos;t have an account? <Link to="/signup">Signup</Link>
-        </p>
-      </form>
     </div>
   );
 }

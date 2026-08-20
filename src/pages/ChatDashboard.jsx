@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Sidebar from "../components/Sidebar";
 import { useChat } from "../context/ChatContext";
 import { loadRazorpayScript } from "../utils/razorpay";
@@ -6,6 +6,7 @@ import "../Style/ChatDashboard.css";
 import { Link } from "react-router-dom";
 
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -21,16 +22,41 @@ function CodeBlock({ children, language, ...props }) {
   return (
     <div className="code-block-container">
       <div className="code-block-header">
-        <span className="code-block-lang">{language}</span>
-        <button className="code-block-copy-btn" onClick={handleCopy}>
-          {copied ? "✓ Copied!" : "📋 Copy code"}
+        <span className="code-block-lang">{language || "code"}</span>
+        <button
+          type="button"
+          className={`code-block-copy-btn ${copied ? "copied" : ""}`}
+          onClick={handleCopy}
+          title="Copy code to clipboard"
+          aria-label="Copy code"
+        >
+          {copied ? "✓ Copied!" : "📋 Copy"}
         </button>
       </div>
       <div className="code-container-inner">
         <SyntaxHighlighter
-          language={language}
+          language={language || "text"}
           style={oneDark}
           PreTag="div"
+          customStyle={{
+            margin: 0,
+            padding: "16px",
+            background: "#0b0f19",
+            fontSize: "13px",
+            lineHeight: "1.5",
+            borderRadius: "0 0 12px 12px",
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            maxWidth: "100%",
+            boxSizing: "border-box"
+          }}
+          codeTagProps={{
+            style: {
+              fontFamily: "'Fira Code', 'Cascadia Code', Consolas, Monaco, monospace",
+              whiteSpace: "pre",
+              wordBreak: "normal"
+            }
+          }}
           {...props}
         >
           {String(children).replace(/\n$/, "")}
@@ -42,9 +68,11 @@ function CodeBlock({ children, language, ...props }) {
 
 function ChatDashboard() {
   const { activeChat, addMessageToActiveChat, chatStatus, fetchChatStatus, fetchAuthUser, authUser } = useChat();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [input, setInput] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [inputDisabled, setInputDisabled] = useState(false);
+  const messagesEndRef = useRef(null);
 
   const [plans, setPlans] = useState([]);
   const [modalEmail, setModalEmail] = useState("");
@@ -168,39 +196,60 @@ function ChatDashboard() {
   const handleSend = (e) => {
     e.preventDefault();
 
-    if (!input.trim() || (chatStatus.limit_reached && chatStatus.is_logged_in)) return;
+    if (!input.trim()) return;
 
-    if (!chatStatus.is_logged_in && chatStatus.guest_count >= 2) {
+    if (!chatStatus.is_logged_in && (chatStatus.guest_count >= 5 || chatStatus.limit_reached)) {
       setShowLoginModal(true);
       setInputDisabled(true);
       return;
     }
 
     addMessageToActiveChat(input);
-
     setInput("");
   };
 
   const messages = activeChat ? activeChat.messages : [];
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   return (
     <div className="chat-dashboard">
-      <Sidebar />
+      <Sidebar open={mobileSidebarOpen} setOpen={setMobileSidebarOpen} />
 
       <main className="chat-main-area">
         <header className="chat-navbar">
-          <div>
-            <h2>SmartBot</h2>
-            <p>ChatGPT style AI chatbot dashboard</p>
+          <div className="chat-navbar-left">
+            <button
+              type="button"
+              className="mobile-sidebar-toggle"
+              onClick={() => setMobileSidebarOpen(true)}
+              aria-label="Toggle history menu"
+              title="History Menu"
+            >
+              ☰
+            </button>
+            <div className="brand-info">
+              <h2>SmartBot</h2>
+              <p className="navbar-subtitle">ChatGPT style AI chatbot dashboard</p>
+            </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <span className={`status-bar-indicator ${chatStatus.is_paid ? "unlimited" : ""}`}>
-              {chatStatus.is_paid ? "✨ Unlimited Access" : `💬 ${chatStatus.remaining_chats} Free Chats Left`}
+          <div className="chat-navbar-right">
+            {chatStatus.is_logged_in && (
+              <span className="user-name-badge" title={authUser?.name || authUser?.username || "User"}>
+                👤 {(() => {
+                  const raw = authUser ? (authUser.name || authUser.username) : (localStorage.getItem("user_email")?.split("@")[0] || "User");
+                  return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "User";
+                })()}
+              </span>
+            )}
+            <span className={`status-bar-indicator ${chatStatus.is_logged_in ? "unlimited" : ""}`}>
+              {chatStatus.is_logged_in
+                ? "✨ Unlimited"
+                : `💬 ${chatStatus.remaining_chats} Free`}
             </span>
-            <Link to="/payment" className="upgrade-button">
-              Upgrade
-            </Link>
           </div>
         </header>
 
@@ -217,12 +266,9 @@ function ChatDashboard() {
                   msg.type === "user" ? "user-row" : "ai-row"
                 }`}
               >
-                {msg.type === "ai" && (
-                  <div className="avatar ai-avatar">AI</div>
-                )}
-
                 <div className={`message ${msg.type}`}>
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       code({
                         inline,
@@ -230,19 +276,27 @@ function ChatDashboard() {
                         children,
                         ...props
                       }) {
-                        const match = /language-(\w+)/.exec(
-                          className || ""
-                        );
+                        const match = /language-(\w+)/.exec(className || "");
+                        const isBlockCode = !inline && (match || String(children).includes("\n"));
 
-                        return !inline && match ? (
+                        return isBlockCode ? (
                           <CodeBlock
-                            language={match[1]}
+                            language={match ? match[1] : "code"}
                             {...props}
                           >
                             {String(children)}
                           </CodeBlock>
                         ) : (
-                          <code {...props}>{children}</code>
+                          <code className="inline-code" {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                      table({ children, ...props }) {
+                        return (
+                          <div className="markdown-table-wrapper">
+                            <table {...props}>{children}</table>
+                          </div>
                         );
                       },
                     }}
@@ -250,26 +304,23 @@ function ChatDashboard() {
                     {msg.text}
                   </ReactMarkdown>
                 </div>
-
-                {msg.type === "user" && (
-                  <div className="avatar user-avatar">U</div>
-                )}
               </div>
             ))
           )}
+          <div ref={messagesEndRef} />
         </section>
 
         <form className="chat-input-wrapper" onSubmit={handleSend}>
           <div className="chat-input-box">
             <input
               type="text"
-              placeholder={(chatStatus.limit_reached && chatStatus.is_logged_in) ? "Limit reached. Please subscribe to continue." : "Message SmartBot..."}
+              placeholder={(!chatStatus.is_logged_in && chatStatus.limit_reached) ? "Limit reached. Log in to continue." : "Message SmartBot..."}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={(chatStatus.limit_reached && chatStatus.is_logged_in) || inputDisabled}
+              disabled={!chatStatus.is_logged_in && chatStatus.limit_reached}
             />
 
-            <button className="send-button" disabled={(chatStatus.limit_reached && chatStatus.is_logged_in) || inputDisabled}>➤</button>
+            <button className="send-button" disabled={!chatStatus.is_logged_in && chatStatus.limit_reached}>➤</button>
           </div>
         </form>
       </main>
@@ -279,7 +330,7 @@ function ChatDashboard() {
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Login Required</h3>
-            <p>You have reached the guest limit of 2 free messages. Please log in to receive 5 additional free chats.</p>
+            <p>You have reached the guest limit of 5 free prompts. Please log in or sign up to unlock ✨ Unlimited Access!</p>
             
             <form onSubmit={handleModalLogin} className="modal-form">
               {modalError && <div style={{ color: "#ef4444", fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>{modalError}</div>}

@@ -216,27 +216,16 @@
 /* Mobile */
 @media (max-width: 768px) {
   .mobile-menu-btn {
-    display: flex;
-    position: fixed;
-    top: 11px;
-    left: 14px;
-    z-index: 1100;
-    width: 42px;
-    height: 42px;
-    border: none;
-    border-radius: 12px;
-    background: #1e293b;
-    color: #ffffff;
-    font-size: 22px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+    display: none !important;
   }
 
   .sidebar {
     width: 280px;
+    max-width: 82vw;
     transform: translateX(-100%);
-    transition: 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2000;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
   }
 
   .sidebar.active {
@@ -248,6 +237,8 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .sidebar-mobile-header h3 {
@@ -263,6 +254,7 @@
     height: 34px;
     border-radius: 10px;
     cursor: pointer;
+    font-size: 16px;
   }
 
   .chat-menu-btn {
@@ -273,8 +265,9 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    z-index: 999;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 1999;
   }
 }
 

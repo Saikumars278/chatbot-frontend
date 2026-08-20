@@ -7,8 +7,10 @@ import "./Sidebar.css";
 // not the Vite dev server (port 5173).
 const API_BASE = "http://localhost:8000/api";
 
-function Sidebar() {
-  const [open, setOpen] = useState(false);
+function Sidebar({ open: propOpen, setOpen: propSetOpen }) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = propOpen !== undefined ? propOpen : internalOpen;
+  const setOpen = propSetOpen || setInternalOpen;
   const [menuIndex, setMenuIndex] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -65,18 +67,6 @@ function Sidebar() {
 
   return (
     <>
-      <button
-        className="mobile-menu-btn"
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen(true);
-          setMenuIndex(null);
-          setUserMenuOpen(false);
-        }}
-      >
-        ☰
-      </button>
-
       {open && (
         <div
           className="sidebar-overlay"
@@ -111,6 +101,7 @@ function Sidebar() {
               createNewChat();
               setMenuIndex(null);
               setUserMenuOpen(false);
+              setOpen(false);
             }}
           >
             + New Chat
@@ -129,6 +120,7 @@ function Sidebar() {
                 selectChat(chat.id);
                 setMenuIndex(null);
                 setUserMenuOpen(false);
+                setOpen(false);
               }}
             >
               <div className="chat-left">
@@ -180,7 +172,7 @@ function Sidebar() {
                   setUserMenuOpen(false);
                 }}
               >
-                Login
+                🔑 Login
               </Link>
 
               <Link
@@ -192,33 +184,27 @@ function Sidebar() {
                   setUserMenuOpen(false);
                 }}
               >
-                Signup
+                ✨ Signup
               </Link>
             </>
           )}
 
-          {/* Show real user section only when logged in */}
-          {!authLoading && authUser && (
+          {/* Show logged in user profile section at the bottom */}
+          {(authUser || (authLoading && localStorage.getItem("user_email"))) && (
             <div className="user-profile-section">
               <div className="user-profile-info">
-                <div className="user-avatar">{authUser.avatar}</div>
+                <div className="user-avatar">
+                  {authUser?.avatar || localStorage.getItem("user_email")?.[0]?.toUpperCase() || "U"}
+                </div>
                 <div className="user-details">
-                  <h4>{authUser.name}</h4>
-                  <p className="user-email" title={authUser.email}>{authUser.email}</p>
-                  <p className="user-plan-badge">{authUser.plan}</p>
+                  <h4>{authUser?.name || authUser?.username || localStorage.getItem("user_email")?.split("@")[0] || "User"}</h4>
+                  <p className="user-email" title={authUser?.email || localStorage.getItem("user_email")}>
+                    {authUser?.email || localStorage.getItem("user_email") || "Logged In"}
+                  </p>
+                  <p className="user-plan-badge">{authUser?.plan || "Unlimited Access"}</p>
                 </div>
               </div>
               <div className="user-profile-actions">
-                <Link
-                  to="/payment"
-                  className="sidebar-action-btn payment-btn"
-                  onClick={() => {
-                    setOpen(false);
-                    setMenuIndex(null);
-                  }}
-                >
-                  💳 Upgrade
-                </Link>
                 <button
                   type="button"
                   className="sidebar-action-btn logout-btn"

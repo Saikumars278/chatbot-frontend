@@ -35,6 +35,16 @@ export function ChatProvider({ children }) {
   const activeChat = chats.find((c) => c.id === activeChatId) || chats[0] || null;
 
   const createNewChat = () => {
+    // Prevent duplicate New Chat sessions: check if an empty/unstarted chat already exists
+    const emptyChat = chats.find(
+      (c) => (c.title === "New Chat" || c.title === "Guest Chat") && !c.messages.some((m) => m.type === "user")
+    );
+
+    if (emptyChat) {
+      setActiveChatId(emptyChat.id);
+      return;
+    }
+
     const newChatId = "chat-" + Date.now();
     const newChat = {
       id: newChatId,
