@@ -1043,6 +1043,16 @@ html[data-theme="light"] .chat-navbar h2 {
   color: #0f172a;
 }
 
+html[data-theme="light"] .mobile-sidebar-toggle {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .mobile-sidebar-toggle:hover {
+  background: #e2e8f0;
+}
+
 html[data-theme="light"] .navbar-subtitle {
   color: #64748b;
 }
