@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import Sidebar from "../components/Sidebar";
 import { useChat } from "../context/ChatContext";
 import { loadRazorpayScript } from "../utils/razorpay";
@@ -11,7 +11,7 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-function CodeBlock({ children, language, ...props }) {
+const CodeBlock = memo(function CodeBlock({ children, language, ...props }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -65,10 +65,54 @@ function CodeBlock({ children, language, ...props }) {
       </div>
     </div>
   );
-}
+});
+
+const MessageItem = memo(function MessageItem({ msg }) {
+  return (
+    <div
+      className={`message-row ${
+        msg.type === "user" ? "user-row" : "ai-row"
+      }`}
+    >
+      <div className={`message ${msg.type}`}>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            code({ inline, className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || "");
+              const isBlockCode = !inline && (match || String(children).includes("\n"));
+
+              return isBlockCode ? (
+                <CodeBlock
+                  language={match ? match[1] : "code"}
+                  {...props}
+                >
+                  {String(children)}
+                </CodeBlock>
+              ) : (
+                <code className="inline-code" {...props}>
+                  {children}
+                </code>
+              );
+            },
+            table({ children, ...props }) {
+              return (
+                <div className="markdown-table-wrapper">
+                  <table {...props}>{children}</table>
+                </div>
+              );
+            },
+          }}
+        >
+          {msg.text}
+        </ReactMarkdown>
+      </div>
+    </div>
+  );
+});
 
 function ChatDashboard() {
-  const { activeChat, addMessageToActiveChat, chatStatus, fetchChatStatus, fetchAuthUser, authUser } = useChat();
+  const { activeChat, addMessageToActiveChat, chatStatus, fetchChatStatus, fetchAuthUser, authUser, theme, toggleTheme } = useChat();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [input, setInput] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -238,6 +282,15 @@ function ChatDashboard() {
           </div>
 
           <div className="chat-navbar-right">
+            <button
+              type="button"
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+            </button>
             {chatStatus.is_logged_in && (
               <span className="user-name-badge" title={authUser?.name || authUser?.username || "User"}>
                 👤 {(() => {
@@ -261,51 +314,7 @@ function ChatDashboard() {
             </div>
           ) : (
             messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`message-row ${
-                  msg.type === "user" ? "user-row" : "ai-row"
-                }`}
-              >
-                <div className={`message ${msg.type}`}>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      code({
-                        inline,
-                        className,
-                        children,
-                        ...props
-                      }) {
-                        const match = /language-(\w+)/.exec(className || "");
-                        const isBlockCode = !inline && (match || String(children).includes("\n"));
-
-                        return isBlockCode ? (
-                          <CodeBlock
-                            language={match ? match[1] : "code"}
-                            {...props}
-                          >
-                            {String(children)}
-                          </CodeBlock>
-                        ) : (
-                          <code className="inline-code" {...props}>
-                            {children}
-                          </code>
-                        );
-                      },
-                      table({ children, ...props }) {
-                        return (
-                          <div className="markdown-table-wrapper">
-                            <table {...props}>{children}</table>
-                          </div>
-                        );
-                      },
-                    }}
-                  >
-                    {msg.text}
-                  </ReactMarkdown>
-                </div>
-              </div>
+              <MessageItem key={index} msg={msg} />
             ))
           )}
           <div ref={messagesEndRef} />

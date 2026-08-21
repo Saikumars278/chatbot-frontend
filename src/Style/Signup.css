@@ -419,3 +419,43 @@
     width: 20px;
   }
 }
+
+/* Light Theme Overrides for Signup / Login */
+html[data-theme="light"] .modern-signup-container {
+  background: #f8fafc;
+}
+
+html[data-theme="light"] .signup-glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .header-title {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .header-subtitle {
+  color: #64748b;
+}
+
+html[data-theme="light"] .input-group label {
+  color: #475569;
+}
+
+html[data-theme="light"] .field-wrapper {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .field-wrapper input {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .card-footer-link {
+  color: #64748b;
+}
+
+html[data-theme="light"] .card-footer-link a {
+  color: #2563eb;
+}

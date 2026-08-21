@@ -253,3 +253,26 @@
     max-width: 360px;
   }
 }
+
+/* Light Theme Overrides for Payment Page */
+html[data-theme="light"] .payment-page {
+  background: linear-gradient(rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.96));
+}
+
+html[data-theme="light"] .back-link {
+  color: #2563eb;
+}
+
+html[data-theme="light"] .payment-container h1 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .payment-subtitle {
+  color: #64748b;
+}
+
+html[data-theme="light"] .card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.07);
+}

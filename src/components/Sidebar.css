@@ -514,4 +514,135 @@
 .sidebar-action-btn.logout-btn:hover {
   background: rgba(248, 113, 113, 0.08);
   color: #f87171;
+}
+
+/* Sidebar Theme Toggle Button */
+.sidebar-theme-toggle-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* Light Theme Overrides for Sidebar */
+html[data-theme="light"] .sidebar {
+  background: #ffffff;
+  color: #0f172a;
+  border-right: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .sidebar-mobile-header {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .sidebar-mobile-header h3 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .sidebar-mobile-header button {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .new-chat-btn {
+  border-color: #cbd5e1;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+html[data-theme="light"] .new-chat-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+html[data-theme="light"] .section-title {
+  color: #64748b;
+}
+
+html[data-theme="light"] .chat-item {
+  color: #334155;
+}
+
+html[data-theme="light"] .chat-item:hover,
+html[data-theme="light"] .chat-item.menu-open {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .chat-menu-btn {
+  color: #64748b;
+}
+
+html[data-theme="light"] .chat-menu-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .chat-dropdown {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .sidebar-bottom {
+  border-top-color: #e2e8f0;
+}
+
+html[data-theme="light"] .sidebar-link {
+  color: #334155;
+}
+
+html[data-theme="light"] .sidebar-link:hover {
+  background: #f1f5f9;
+}
+
+html[data-theme="light"] .sidebar-theme-toggle-btn {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .sidebar-theme-toggle-btn:hover {
+  background: #e2e8f0;
+}
+
+html[data-theme="light"] .user-profile-section {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .user-details h4 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .user-email {
+  color: #64748b;
+}
+
+html[data-theme="light"] .user-profile-actions {
+  border-top-color: #e2e8f0;
+}
+
+html[data-theme="light"] .sidebar-action-btn {
+  color: #475569;
+}
+
+html[data-theme="light"] .sidebar-action-btn:first-child {
+  border-right-color: #e2e8f0;
 }

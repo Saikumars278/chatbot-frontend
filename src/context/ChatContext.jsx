@@ -233,6 +233,20 @@ export function ChatProvider({ children }) {
     }
   };
 
+  // ── Theme State ────────────────────────────────────────────────────────────
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("smartbot_theme") || "dark";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("smartbot_theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -244,6 +258,9 @@ export function ChatProvider({ children }) {
         selectChat,
         clearAllChats,
         addMessageToActiveChat,
+        // theme
+        theme,
+        toggleTheme,
         // auth
         authUser,
         authLoading,

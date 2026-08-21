@@ -14,7 +14,7 @@ function Sidebar({ open: propOpen, setOpen: propSetOpen }) {
 
   const navigate = useNavigate();
 
-  const { chats, activeChatId, createNewChat, deleteChat, selectChat, authUser, authLoading, fetchAuthUser, fetchChatStatus, clearAllChats } = useChat();
+  const { chats, activeChatId, createNewChat, deleteChat, selectChat, authUser, authLoading, fetchAuthUser, fetchChatStatus, clearAllChats, theme, toggleTheme } = useChat();
 
   const toggleMenu = (index) => {
     setUserMenuOpen(false);
@@ -158,6 +158,15 @@ function Sidebar({ open: propOpen, setOpen: propSetOpen }) {
         </div>
 
         <div className="sidebar-bottom">
+          <button
+            type="button"
+            className="sidebar-theme-toggle-btn"
+            onClick={toggleTheme}
+            title="Toggle Light/Dark Theme"
+          >
+            {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+          </button>
+
           {/* Show Login/Signup only when there is no logged-in user */}
           {!authLoading && !authUser && (
             <>

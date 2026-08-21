@@ -997,3 +997,143 @@ code.inline-code {
     font-size: 14px;
   }
 }
+
+/* Theme Toggle Button in Navbar */
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Light Theme Overrides for ChatDashboard                                   */
+/* -------------------------------------------------------------------------- */
+html[data-theme="light"] .chat-dashboard {
+  background: #f8fafc;
+}
+
+html[data-theme="light"] .chat-main-area {
+  color: #0f172a;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.07), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.05), transparent 40%),
+    linear-gradient(135deg, #f8fafc, #f1f5f9);
+}
+
+html[data-theme="light"] .chat-navbar {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .chat-navbar h2 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .navbar-subtitle {
+  color: #64748b;
+}
+
+html[data-theme="light"] .theme-toggle-btn {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .theme-toggle-btn:hover {
+  background: #e2e8f0;
+}
+
+html[data-theme="light"] .user-name-badge {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .empty-chat h1 {
+  background: linear-gradient(135deg, #0f172a, #475569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+html[data-theme="light"] .message.bot,
+html[data-theme="light"] .message.ai {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .message h1,
+html[data-theme="light"] .message h2,
+html[data-theme="light"] .message h3,
+html[data-theme="light"] .message h4 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] code.inline-code {
+  background: #e2e8f0;
+  color: #0284c7;
+}
+
+html[data-theme="light"] .chat-input-wrapper {
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .chat-input-box {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+html[data-theme="light"] .chat-input-box:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.15);
+}
+
+html[data-theme="light"] .chat-input-box input {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .chat-input-box input::placeholder {
+  color: #94a3b8;
+}
+
+html[data-theme="light"] .modal-overlay {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+html[data-theme="light"] .modal-content {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme="light"] .modal-content h3 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .modal-form label {
+  color: #475569;
+}
+
+html[data-theme="light"] .modal-form input {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
