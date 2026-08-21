@@ -116,12 +116,13 @@ export function ChatProvider({ children }) {
         } else {
           const localCount = parseInt(localStorage.getItem("smartbot_guest_messages_count") || "0", 10);
           const effectiveCount = Math.max(data.guest_count || 0, localCount);
-          const remaining = Math.max(0, 2 - effectiveCount);
+          const maxGuestChats = 5;
+          const remaining = Math.max(0, maxGuestChats - effectiveCount);
           setChatStatus({
             ...data,
             guest_count: effectiveCount,
             remaining_chats: remaining,
-            limit_reached: effectiveCount >= 2,
+            limit_reached: effectiveCount >= maxGuestChats,
             status_text: remaining > 0 ? `${remaining} remaining free chats` : "Login required"
           });
         }
@@ -187,7 +188,11 @@ export function ChatProvider({ children }) {
       });
       const data = await response.json();
       if (data.success && data.bot_message) {
-        if (!chatStatus.is_logged_in) {
+        const isError = typeof data.bot_message.text === "string" && (
+          data.bot_message.text.includes("Sorry, I couldn't generate a response") ||
+          data.bot_message.text.startsWith("Error:")
+        );
+        if (!chatStatus.is_logged_in && !isError) {
           const currentCount = parseInt(localStorage.getItem("smartbot_guest_messages_count") || "0", 10);
           localStorage.setItem("smartbot_guest_messages_count", (currentCount + 1).toString());
         }
