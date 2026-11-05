@@ -5,10 +5,11 @@
    ============================================================ */
 
 .payment-page {
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
-  padding: 24px 20px 60px 20px;
+  padding: 24px 20px 80px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,7 +23,7 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  overflow-y: auto;
+  overflow-y: visible;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
@@ -510,11 +511,19 @@
 
 /* 2. Tablets & Small Laptops (769px to 992px) */
 @media (max-width: 992px) {
+  .payment-page {
+    padding: 24px 20px 80px 20px;
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: visible;
+  }
+
   .cards-grid {
     grid-template-columns: 1fr;
     max-width: 440px;
     margin: 0 auto;
     gap: 24px;
+    padding-bottom: 30px;
   }
 
   .pricing-card.featured-card {
@@ -542,7 +551,10 @@
 /* 3. Phablets & Large Mobiles (481px to 768px) */
 @media (max-width: 768px) {
   .payment-page {
-    padding: 20px 16px 60px 16px;
+    padding: 20px 16px 80px 16px;
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: visible;
   }
 
   .payment-header-section h1 {
@@ -566,7 +578,10 @@
 /* 4. Standard Mobile Phones (361px to 480px) */
 @media (max-width: 480px) {
   .payment-page {
-    padding: 16px 14px 60px 14px;
+    padding: 16px 14px 80px 14px;
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: visible;
   }
 
   .payment-top-bar {

@@ -14,6 +14,39 @@ function Payment() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Unlock scrolling for payment page across all devices
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const rootEl = document.getElementById("root");
+    const prevRootOverflow = rootEl ? rootEl.style.overflow : "";
+    const prevRootHeight = rootEl ? rootEl.style.height : "";
+
+    document.documentElement.style.overflow = "auto";
+    document.documentElement.style.overflowY = "auto";
+    document.body.style.overflow = "auto";
+    document.body.style.overflowY = "auto";
+    if (rootEl) {
+      rootEl.style.overflow = "auto";
+      rootEl.style.overflowY = "auto";
+      rootEl.style.height = "auto";
+      rootEl.style.minHeight = "100%";
+    }
+
+    return () => {
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.documentElement.style.overflowY = "";
+      document.body.style.overflow = prevBodyOverflow;
+      document.body.style.overflowY = "";
+      if (rootEl) {
+        rootEl.style.overflow = prevRootOverflow;
+        rootEl.style.overflowY = "";
+        rootEl.style.height = prevRootHeight;
+        rootEl.style.minHeight = "";
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (!authLoading && !authUser) {
       navigate("/chat");
     }
