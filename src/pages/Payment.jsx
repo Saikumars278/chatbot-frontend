@@ -123,8 +123,7 @@ function Payment() {
         "5 Free chats on your account",
         "Standard Groq AI intelligence",
         "Standard response speed",
-        "Save and view chat history",
-        "Community support"
+        "Save and view chat history"
       ];
     } else if (title === "Student" || title === "Unlimited Access") {
       return [
@@ -140,7 +139,7 @@ function Payment() {
         "Team workspace collaboration",
         "Admin controls & analytics",
         "Maximum priority API access",
-        "Dedicated 24/7 priority support"
+        "Dedicated support"
       ];
     } else {
       return [
@@ -153,19 +152,54 @@ function Payment() {
     }
   };
 
+  const getPlanIcon = (title) => {
+    if (title === "Plus") {
+      return (
+        <div className="plan-icon-badge plus-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <circle cx="9" cy="10" r="1" fill="#60a5fa"></circle>
+            <circle cx="12" cy="10" r="1" fill="#60a5fa"></circle>
+            <circle cx="15" cy="10" r="1" fill="#60a5fa"></circle>
+          </svg>
+        </div>
+      );
+    } else if (title === "Student" || title === "Unlimited Access") {
+      return (
+        <div className="plan-icon-badge student-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fbbf24" stroke="#f59e0b" strokeWidth="1.5">
+            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z" />
+          </svg>
+        </div>
+      );
+    } else {
+      return (
+        <div className="plan-icon-badge business-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="payment-page">
       <div className="payment-container">
-        <div className="payment-top-nav">
+        <div className="payment-top-bar">
           <Link to="/chat" className="back-link">
             <span>←</span> Back to Chat
           </Link>
+          <div className="flexible-plans-pill">
+            <span>⚡ FLEXIBLE PLANS</span>
+          </div>
         </div>
 
         <div className="payment-header-section">
           <h1>Upgrade Your Plan</h1>
           <p className="payment-subtitle">
-            Choose the plan that fits your workflows and team collaboration.
+            Choose the plan that fits your workflows and unlock unlimited AI intelligence.
           </p>
         </div>
 
@@ -191,13 +225,16 @@ function Payment() {
                 >
                   {isFeatured && (
                     <div className="featured-pill-badge">
-                      <span>POPULAR</span>
+                      <span>✩ POPULAR</span>
                     </div>
                   )}
 
-                  <div className="card-header-block">
-                    <h2 className="plan-title">{plan.title}</h2>
-                    <p className="plan-description">{plan.desc}</p>
+                  <div className="card-header-row">
+                    {getPlanIcon(plan.title)}
+                    <div className="card-title-group">
+                      <h2 className="plan-title">{plan.title}</h2>
+                      <p className="plan-description">{plan.desc}</p>
+                    </div>
                   </div>
 
                   <div className="card-price-block">
@@ -212,24 +249,33 @@ function Payment() {
                       <button className="plan-btn btn-current" disabled>
                         ✓ Current Plan
                       </button>
+                    ) : isFeatured ? (
+                      <button
+                        onClick={() => handleUpgrade(plan.id)}
+                        className="plan-btn btn-featured"
+                      >
+                        Upgrade to {plan.title} →
+                      </button>
                     ) : (
                       <button
                         onClick={() => handleUpgrade(plan.id)}
-                        className={`plan-btn ${isFeatured ? "btn-featured" : "btn-standard"}`}
+                        className="plan-btn btn-standard"
                       >
-                        Upgrade to {plan.title}
+                        Upgrade to {plan.title} →
                       </button>
                     )}
                   </div>
-
-                  <div className="card-divider-line"></div>
 
                   <div className="card-features-block">
                     <div className="features-header-text">WHAT'S INCLUDED:</div>
                     <ul className="features-list">
                       {features.map((feature, i) => (
                         <li key={i} className="feature-item">
-                          <span className="check-bullet">✓</span>
+                          <span className="check-bullet">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          </span>
                           <span className="feature-text">{feature}</span>
                         </li>
                       ))}
@@ -240,10 +286,6 @@ function Payment() {
             })}
           </div>
         )}
-
-        <div className="payment-footer-note">
-          <p>🔒 100% Safe, Secure & Encrypted Checkout powered by Razorpay</p>
-        </div>
       </div>
     </div>
   );
