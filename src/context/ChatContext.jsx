@@ -178,7 +178,7 @@ export function ChatProvider({ children }) {
               limit_reached: isLimit,
               login_required: false,
               payment_required: isLimit,
-              status_text: remaining > 0 ? `${remaining} Free Chats Remaining` : "Payment Required (₹299)"
+              status_text: remaining > 0 ? `${remaining} Free Chats Remaining` : "Payment Required (₹599)"
             });
           } else {
             const localCount = parseInt(localStorage.getItem("smartbot_guest_messages_count") || "0", 10);

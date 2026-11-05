@@ -1227,7 +1227,8 @@ html[data-theme="light"] .modal-form input {
   gap: 8px;
 }
 
-.pay-299-btn {
+.pay-299-btn,
+.pay-599-btn {
   background: linear-gradient(135deg, #facc15, #eab308, #d97706) !important;
   color: #0f172a !important;
   font-size: 16px !important;
@@ -1236,7 +1237,8 @@ html[data-theme="light"] .modal-form input {
   box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3);
 }
 
-.pay-299-btn:hover {
+.pay-299-btn:hover,
+.pay-599-btn:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
 }

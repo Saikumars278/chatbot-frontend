@@ -222,7 +222,7 @@ function Sidebar({ open: propOpen, setOpen: propSetOpen }) {
                         onClick={() => navigate("/payment")}
                         title="Upgrade to Unlimited Access"
                       >
-                        ⚡ Upgrade (₹299)
+                        ⚡ Upgrade (Plans)
                       </button>
                     </>
                   )}

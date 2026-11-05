@@ -119,13 +119,13 @@ function Payment() {
   // Map static features lists based on standard plans
   const getFeatures = (title) => {
     if (title === "Plus") {
-      return ["Advanced models", "Image creation", "Codex coding agent", "Projects and custom GPTs"];
-    } else if (title === "Unlimited Access") {
-      return ["Unlimited AI Chat messages", "High-speed Groq AI models", "Complete chat history", "Zero recurring charges"];
+      return ["5 Free chats on your account", "Standard Groq AI intelligence", "Standard response speed", "Community support"];
+    } else if (title === "Student" || title === "Unlimited Access") {
+      return ["Unlimited AI Chat messages", "High-speed Groq AI models", "Complete chat history retention", "Student priority processing", "Zero recurring charges"];
     } else if (title === "Business") {
-      return ["Team workspace", "Admin controls", "Billing management", "Company knowledge"];
+      return ["Everything in Student", "Team workspace collaboration", "Admin controls & analytics", "Maximum priority API access", "Dedicated 24/7 priority support"];
     } else {
-      return ["5x more usage", "Maximum Codex access", "Deep research", "Fast image creation"];
+      return ["Unlimited AI Chat messages", "High-speed Groq AI models", "Complete chat history retention", "Fast priority processing"];
     }
   };
 

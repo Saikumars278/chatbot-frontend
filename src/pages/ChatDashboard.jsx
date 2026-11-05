@@ -158,7 +158,7 @@ function ChatDashboard() {
     }
   }, [isPaid, isGuestLimitReached, isUserLimitReached]);
 
-  const handleUpgradeTo299 = async () => {
+  const handleUpgradeTo599 = async () => {
     setPaymentLoading(true);
     try {
       const res = await loadRazorpayScript();
@@ -172,7 +172,7 @@ function ChatDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ amount: 299, plan_name: "Unlimited Access" }),
+        body: JSON.stringify({ amount: 599, plan_name: "Student" }),
       });
       const orderData = await orderResponse.json();
 
@@ -187,7 +187,7 @@ function ChatDashboard() {
         amount: orderData.amount,
         currency: orderData.currency || "INR",
         name: "SmartBot AI",
-        description: "Unlimited Access Plan (₹299)",
+        description: "Student Plan (₹599)",
         order_id: orderData.order_id,
         handler: async function (response) {
           try {
@@ -199,12 +199,13 @@ function ChatDashboard() {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature,
+                plan_name: "Student"
               }),
             });
             const verifyData = await verifyResponse.json();
             if (verifyData.success) {
               localStorage.setItem("smartbot_is_paid", "true");
-              alert("🎉 Payment successful! You now have Unlimited Access.");
+              alert("🎉 Payment successful! You now have Unlimited Access on the Student Plan.");
               await fetchChatStatus();
               setShowPaymentModal(false);
             } else {
@@ -361,7 +362,7 @@ function ChatDashboard() {
                 isGuestLimitReached
                   ? "Guest limit reached (3 chats). Sign up or log in for 5 more free chats."
                   : isUserLimitReached
-                  ? "Free limit reached (5 chats). Upgrade to Unlimited Access for ₹299."
+                  ? "Free limit reached (5 chats). Upgrade to Student Plan for ₹599."
                   : "Message SmartBot..."
               }
               value={input}
@@ -381,7 +382,7 @@ function ChatDashboard() {
                 isGuestLimitReached
                   ? "Sign up or log in to continue"
                   : isUserLimitReached
-                  ? "Upgrade to ₹299 Unlimited Access"
+                  ? "Upgrade to ₹599 Student Plan"
                   : "Send message"
               }
             >
@@ -436,18 +437,18 @@ function ChatDashboard() {
         </div>
       )}
 
-      {/* 2. ₹299 Payment Modal for Logged-In Users after 5 chats */}
+      {/* 2. ₹599 Student Plan Payment Modal for Logged-In Users after 5 chats */}
       {showPaymentModal && (
         <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
           <div className="modal-content premium-pay-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-badge-tag gold">⚡ UNLIMITED ACCESS</div>
-            <h3>Upgrade to Unlimited Access</h3>
+            <div className="modal-badge-tag gold">⚡ STUDENT PLAN • UNLIMITED ACCESS</div>
+            <h3>Upgrade to Student Plan</h3>
             <p>
-              You've used your <strong>5 free chats</strong>. Pay just <strong>₹299</strong> to unlock unlimited AI chats forever without any limits!
+              You've used your <strong>5 free chats</strong>. Upgrade to the <strong>Student Plan for ₹599</strong> to unlock unlimited AI chats forever without any limits!
             </p>
 
             <div className="price-highlight-box">
-              <div className="price-tag-big">₹299</div>
+              <div className="price-tag-big">₹599</div>
               <div className="price-subtitle">One-Time Payment • Instant Lifetime Access</div>
             </div>
 
@@ -455,16 +456,26 @@ function ChatDashboard() {
               <li>⚡ <strong>Unlimited AI Messages</strong> & instant replies</li>
               <li>🚀 <strong>High-Speed Groq AI</strong> intelligence models</li>
               <li>💬 <strong>Permanent Chat History</strong> & session retention</li>
+              <li>🎓 <strong>Student Priority Processing</strong></li>
               <li>🛡️ <strong>Zero recurring charges</strong> (Single one-time payment)</li>
             </ul>
 
             <button
               type="button"
-              className="modal-btn primary pay-299-btn"
-              onClick={handleUpgradeTo299}
+              className="modal-btn primary pay-599-btn pay-299-btn"
+              onClick={handleUpgradeTo599}
               disabled={paymentLoading}
             >
-              {paymentLoading ? "Connecting to Razorpay..." : "💳 Pay ₹299 with Razorpay"}
+              {paymentLoading ? "Connecting to Razorpay..." : "💳 Pay ₹599 with Razorpay"}
+            </button>
+
+            <button
+              type="button"
+              className="modal-btn secondary"
+              style={{ marginTop: "10px" }}
+              onClick={() => navigate("/payment")}
+            >
+              View All Plans (Business ₹999) →
             </button>
 
             <p style={{ fontSize: "12px", color: "#64748b", margin: "14px 0 0" }}>
