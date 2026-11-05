@@ -1,236 +1,400 @@
+/* ============================================================
+   Payment Page Styling - Premium SaaS Glassmorphism
+   ============================================================ */
+
 .payment-page {
   min-height: 100vh;
   width: 100%;
-  padding: 40px 20px;
+  padding: 40px 24px 90px 24px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
   background:
-    linear-gradient(rgba(5, 15, 35, 0.88), rgba(5, 15, 35, 0.92)),
+    radial-gradient(ellipse at 50% 0%, rgba(30, 58, 138, 0.3) 0%, transparent 70%),
+    linear-gradient(rgba(5, 12, 28, 0.94), rgba(5, 12, 28, 0.98)),
     url("https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=80");
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
+  overflow-y: auto;
 }
 
 .payment-container {
-  max-width: 1100px;
+  max-width: 1120px;
   width: 100%;
   margin: 0 auto;
-  animation: fadeUp 0.75s ease;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- Top Navigation --- */
+.payment-top-nav {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 24px;
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 30px;
-  color: #dbeafe;
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  color: #cbd5e1;
   text-decoration: none;
   font-weight: 600;
-  font-size: 15px;
-  transition: 0.3s ease;
+  font-size: 14px;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
 }
 
 .back-link:hover {
+  background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  transform: translateX(-4px);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateX(-3px);
 }
 
-.payment-container h1 {
+/* --- Header Section --- */
+.payment-header-section {
   text-align: center;
+  margin-bottom: 40px;
+}
+
+.payment-badge-tag {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.payment-header-section h1 {
   color: #ffffff;
   font-size: 38px;
   font-weight: 800;
-  margin-bottom: 12px;
-  letter-spacing: -0.5px;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.6px;
+  background: linear-gradient(180deg, #ffffff 30%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .payment-subtitle {
-  text-align: center;
   color: #94a3b8;
   font-size: 16px;
-  margin-bottom: 45px;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
 }
 
-.cards {
-  display: flex;
-  gap: 25px;
-  justify-content: center;
+/* --- Loading / Error States --- */
+.payment-loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #94a3b8;
+}
+
+.payment-spinner {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 16px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.payment-error-state {
+  text-align: center;
+  padding: 24px;
+  margin: 30px auto;
+  max-width: 500px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 14px;
+  color: #fca5a5;
+  font-size: 15px;
+}
+
+/* --- Pricing Cards Grid --- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
   align-items: stretch;
+  width: 100%;
+  margin-bottom: 36px;
+}
+
+/* --- Individual Pricing Card --- */
+.pricing-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  padding: 34px 28px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(16px);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  box-sizing: border-box;
+}
+
+.pricing-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 26px 55px rgba(0, 0, 0, 0.52);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* Featured / Student Card Glow */
+.pricing-card.featured-card {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(37, 99, 235, 0.25) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(20, 35, 75, 0.92) 0%, rgba(13, 21, 46, 0.96) 100%);
+  border: 1.5px solid rgba(59, 130, 246, 0.65);
+  box-shadow: 0 0 32px rgba(37, 99, 235, 0.28), 0 24px 50px rgba(0, 0, 0, 0.45);
+}
+
+.pricing-card.featured-card:hover {
+  border-color: rgba(96, 165, 250, 0.9);
+  box-shadow: 0 0 45px rgba(37, 99, 235, 0.4), 0 30px 60px rgba(0, 0, 0, 0.55);
+}
+
+/* Popular Badge */
+.featured-pill-badge {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #facc15, #eab308);
+  color: #0f172a;
+  padding: 5px 16px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.4);
+  white-space: nowrap;
+}
+
+/* --- Card Header Block (Equal Height) --- */
+.card-header-block {
+  min-height: 76px;
+  margin-bottom: 12px;
+}
+
+.plan-title {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.plan-description {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.featured-card .plan-description {
+  color: #bfdbfe;
+}
+
+/* --- Card Price Block (Equal Height) --- */
+.card-price-block {
+  min-height: 68px;
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 20px;
+}
+
+.price-display {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.card {
-  position: relative;
-  width: 320px;
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 24px;
-  padding: 35px 30px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
-  color: #0f172a;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
-}
-
-.featured-card {
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.88),
-    rgba(30, 64, 175, 0.72)
-  );
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(16px);
-}
-
-.badge {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: linear-gradient(135deg, #facc15, #eab308);
-  color: #0f172a;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);
-}
-
-.card h2 {
-  margin: 0 0 10px 0;
-  font-size: 24px;
-  font-weight: 800;
-}
-
-.desc {
-  color: #64748b;
-  font-size: 14px;
-  line-height: 1.5;
-  min-height: 42px;
-  margin-bottom: 25px;
-}
-
-.featured-card .desc {
-  color: #cbd5e1;
-}
-
-.card h3 {
-  margin: 0;
+.price-number {
   font-size: 42px;
   font-weight: 900;
-  letter-spacing: -1px;
+  color: #ffffff;
+  letter-spacing: -1.2px;
+  line-height: 1;
 }
 
-.note {
-  color: #64748b;
-  font-size: 13px;
+.price-frequency {
+  color: #94a3b8;
+  font-size: 13.5px;
   font-weight: 500;
-  margin: 4px 0 25px 0;
 }
 
-.featured-card .note {
+.featured-card .price-frequency {
   color: #cbd5e1;
 }
 
-.btn {
+/* --- Card Action CTA Button (Equal Height) --- */
+.card-action-block {
+  margin-bottom: 24px;
+}
+
+.plan-btn {
   width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  color: #ffffff;
+  height: 48px;
+  border-radius: 12px;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14.5px;
   cursor: pointer;
-  margin-bottom: 28px;
-  text-decoration: none;
-  display: block;
-  text-align: center;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
   box-sizing: border-box;
-  transition: 0.3s ease;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
-  filter: brightness(1.1);
-}
-
-.featured-card .btn {
-  background: linear-gradient(135deg, #1d4ed8, #2563eb, #38bdf8);
+/* Standard button (Business) */
+.btn-standard {
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.featured-card .btn:hover {
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.45);
+.btn-standard:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
-.btn.disabled {
-  background: #e2e8f0;
+/* Featured button (Student) */
+.btn-featured {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.btn-featured:hover {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  box-shadow: 0 8px 26px rgba(37, 99, 235, 0.55);
+  transform: translateY(-2px);
+}
+
+/* Current Plan (Disabled / Free) */
+.btn-current {
+  background: rgba(255, 255, 255, 0.05);
   color: #94a3b8;
-  cursor: not-allowed;
-  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: default;
 }
 
-.btn.disabled:hover {
-  transform: none;
-  filter: none;
+/* --- Card Divider Line --- */
+.card-divider-line {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.09);
+  width: 100%;
+  margin-bottom: 22px;
 }
 
-.card ul {
-  padding-left: 0;
+.featured-card .card-divider-line {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* --- Features Block --- */
+.card-features-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.features-header-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.featured-card .features-header-text {
+  color: #93c5fd;
+}
+
+.features-list {
   list-style: none;
+  padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  border-top: 1px solid #e2e8f0;
-  padding-top: 25px;
-  margin-top: auto;
+  gap: 13px;
+  flex: 1;
 }
 
-.featured-card ul {
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.card li {
-  color: #475569;
-  font-size: 14.5px;
+.feature-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  font-weight: 500;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #cbd5e1;
 }
 
-.card li::before {
-  content: "✓";
+.check-bullet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
   color: #10b981;
+  font-size: 12px;
   font-weight: 800;
-  font-size: 16px;
+  margin-top: 1px;
 }
 
-.featured-card li {
-  color: #e2e8f0;
-}
-
-.featured-card li::before {
+.featured-card .check-bullet {
+  background: rgba(52, 211, 153, 0.22);
   color: #34d399;
 }
 
+.feature-text {
+  color: #e2e8f0;
+}
+
+/* --- Footer Security Note --- */
+.payment-footer-note {
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+/* --- Animation --- */
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -238,41 +402,33 @@
   }
 }
 
-@media (max-width: 768px) {
+/* --- Responsive Breakpoints --- */
+@media (max-width: 980px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+    margin: 0 auto 36px auto;
+  }
+
+  .pricing-card.featured-card {
+    order: -1;
+  }
+
+  .payment-header-section h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 480px) {
   .payment-page {
-    padding: 30px 15px;
+    padding: 24px 16px 60px 16px;
   }
 
-  .cards {
-    flex-direction: column;
-    align-items: center;
+  .pricing-card {
+    padding: 26px 20px;
   }
 
-  .card {
-    width: 100%;
-    max-width: 360px;
+  .price-number {
+    font-size: 36px;
   }
-}
-
-/* Light Theme Overrides for Payment Page */
-html[data-theme="light"] .payment-page {
-  background: linear-gradient(rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.96));
-}
-
-html[data-theme="light"] .back-link {
-  color: #2563eb;
-}
-
-html[data-theme="light"] .payment-container h1 {
-  color: #0f172a;
-}
-
-html[data-theme="light"] .payment-subtitle {
-  color: #64748b;
-}
-
-html[data-theme="light"] .card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.07);
 }

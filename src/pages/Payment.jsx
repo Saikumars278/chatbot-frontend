@@ -119,67 +119,132 @@ function Payment() {
   // Map static features lists based on standard plans
   const getFeatures = (title) => {
     if (title === "Plus") {
-      return ["5 Free chats on your account", "Standard Groq AI intelligence", "Standard response speed", "Community support"];
+      return [
+        "5 Free chats on your account",
+        "Standard Groq AI intelligence",
+        "Standard response speed",
+        "Save and view chat history",
+        "Community support"
+      ];
     } else if (title === "Student" || title === "Unlimited Access") {
-      return ["Unlimited AI Chat messages", "High-speed Groq AI models", "Complete chat history retention", "Student priority processing", "Zero recurring charges"];
+      return [
+        "Unlimited AI Chat messages",
+        "High-speed Groq AI models",
+        "Complete chat history retention",
+        "Student priority processing",
+        "Zero recurring charges"
+      ];
     } else if (title === "Business") {
-      return ["Everything in Student", "Team workspace collaboration", "Admin controls & analytics", "Maximum priority API access", "Dedicated 24/7 priority support"];
+      return [
+        "Everything in Student",
+        "Team workspace collaboration",
+        "Admin controls & analytics",
+        "Maximum priority API access",
+        "Dedicated 24/7 priority support"
+      ];
     } else {
-      return ["Unlimited AI Chat messages", "High-speed Groq AI models", "Complete chat history retention", "Fast priority processing"];
+      return [
+        "Unlimited AI Chat messages",
+        "High-speed Groq AI models",
+        "Complete chat history retention",
+        "Fast priority processing",
+        "Zero recurring charges"
+      ];
     }
   };
 
   return (
     <div className="payment-page">
       <div className="payment-container">
-        <Link to="/chat" className="back-link">
-          ← Back
-        </Link>
+        <div className="payment-top-nav">
+          <Link to="/chat" className="back-link">
+            <span>←</span> Back to Chat
+          </Link>
+        </div>
 
-        <h1>Upgrade Your Plan</h1>
-        <p className="payment-subtitle">Choose the plan that fits your workflows and team collaboration.</p>
+        <div className="payment-header-section">
+          <span className="payment-badge-tag">⚡ FLEXIBLE PLANS</span>
+          <h1>Upgrade Your Plan</h1>
+          <p className="payment-subtitle">
+            Choose the plan that fits your workflows and unlock unlimited AI intelligence.
+          </p>
+        </div>
 
-        {loading && <div style={{ textAlign: "center", color: "#ffffff", fontSize: "16px", marginTop: "40px" }}>Loading plans...</div>}
-        {error && <div style={{ textAlign: "center", color: "#ef4444", fontSize: "16px", marginTop: "40px" }}>{error}</div>}
+        {loading && (
+          <div className="payment-loading-state">
+            <div className="payment-spinner"></div>
+            <p>Loading available plans...</p>
+          </div>
+        )}
+        {error && <div className="payment-error-state">{error}</div>}
 
         {!loading && !error && (
-          <div className="cards">
-            {plans.map((plan, index) => {
+          <div className="cards-grid">
+            {plans.map((plan) => {
               const features = getFeatures(plan.title);
               const isFree = plan.title === "Plus";
+              const isFeatured = !!plan.featured;
+
               return (
                 <div
-                  className={`card ${plan.featured ? "featured-card" : ""}`}
+                  className={`pricing-card ${isFeatured ? "featured-card" : ""} ${isFree ? "free-card" : ""}`}
                   key={plan.id}
                 >
-                  {plan.featured && <span className="badge">Popular</span>}
-
-                  <h2>{plan.title}</h2>
-                  <p className="desc">{plan.desc}</p>
-
-                  <h3>{plan.price}</h3>
-                  <p className="note">{plan.note}</p>
-
-                  {isFree ? (
-                    <button className="btn disabled" disabled>
-                      Current Plan
-                    </button>
-                  ) : (
-                    <button onClick={() => handleUpgrade(plan.id)} className="btn">
-                      Upgrade to {plan.title}
-                    </button>
+                  {isFeatured && (
+                    <div className="featured-pill-badge">
+                      <span>⭐ POPULAR</span>
+                    </div>
                   )}
 
-                  <ul>
-                    {features.map((feature, i) => (
-                      <li key={i}>{feature}</li>
-                    ))}
-                  </ul>
+                  <div className="card-header-block">
+                    <h2 className="plan-title">{plan.title}</h2>
+                    <p className="plan-description">{plan.desc}</p>
+                  </div>
+
+                  <div className="card-price-block">
+                    <div className="price-display">
+                      <span className="price-number">{plan.price}</span>
+                      <span className="price-frequency">{plan.note}</span>
+                    </div>
+                  </div>
+
+                  <div className="card-action-block">
+                    {isFree ? (
+                      <button className="plan-btn btn-current" disabled>
+                        ✓ Current Plan
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleUpgrade(plan.id)}
+                        className={`plan-btn ${isFeatured ? "btn-featured" : "btn-standard"}`}
+                      >
+                        Upgrade to {plan.title}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="card-divider-line"></div>
+
+                  <div className="card-features-block">
+                    <div className="features-header-text">WHAT'S INCLUDED:</div>
+                    <ul className="features-list">
+                      {features.map((feature, i) => (
+                        <li key={i} className="feature-item">
+                          <span className="check-bullet">✓</span>
+                          <span className="feature-text">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
+
+        <div className="payment-footer-note">
+          <p>🔒 100% Safe, Secure & Encrypted Checkout powered by Razorpay</p>
+        </div>
       </div>
     </div>
   );
