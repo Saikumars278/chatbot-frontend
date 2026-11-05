@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, memo } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useChat } from "../context/ChatContext";
 import { loadRazorpayScript } from "../utils/razorpay";
 import { API_BASE_URL } from "../config";
 import "../Style/ChatDashboard.css";
-import { Link } from "react-router-dom";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -112,73 +112,59 @@ const MessageItem = memo(function MessageItem({ msg }) {
 });
 
 function ChatDashboard() {
-  const { activeChat, addMessageToActiveChat, chatStatus, fetchChatStatus, fetchAuthUser, authUser, theme, toggleTheme } = useChat();
+  const navigate = useNavigate();
+  const {
+    activeChat,
+    addMessageToActiveChat,
+    chatStatus = {},
+    fetchChatStatus,
+    theme,
+    toggleTheme
+  } = useChat();
+
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [input, setInput] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [inputDisabled, setInputDisabled] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const [plans, setPlans] = useState([]);
-  const [modalEmail, setModalEmail] = useState("");
-  const [modalPassword, setModalPassword] = useState("");
-  const [modalError, setModalError] = useState("");
-  const [modalLoading, setModalLoading] = useState(false);
+  const isPaid = !!chatStatus?.is_paid;
+  const isLoggedIn = !!chatStatus?.is_logged_in;
+  const isGuestLimitReached = !isPaid && !isLoggedIn && (
+    chatStatus?.remaining_chats === 0 ||
+    chatStatus?.limit_reached ||
+    chatStatus?.login_required ||
+    (typeof chatStatus?.guest_count === "number" && chatStatus.guest_count >= 3)
+  );
+  const isUserLimitReached = !isPaid && isLoggedIn && (
+    chatStatus?.remaining_chats === 0 ||
+    chatStatus?.limit_reached ||
+    chatStatus?.payment_required ||
+    (typeof chatStatus?.user_count === "number" && chatStatus.user_count >= 5)
+  );
 
+  // Auto trigger modals when thresholds are hit
   useEffect(() => {
-    if (chatStatus.limit_reached && chatStatus.is_logged_in && !chatStatus.is_paid) {
-      const fetchPlans = async () => {
-        try {
-          const res = await fetch(`${API_BASE_URL}/plans/`, { credentials: "include" });
-          const data = await res.json();
-          if (data.success) {
-            setPlans(data.plans);
-          }
-        } catch (err) {
-          console.error("Failed to load plans in modal", err);
-        }
-      };
-      fetchPlans();
+    if (isPaid) {
+      setShowLoginModal(false);
+      setShowPaymentModal(false);
+    } else if (isGuestLimitReached) {
+      setShowLoginModal(true);
+      setShowPaymentModal(false);
+    } else if (isUserLimitReached) {
+      setShowPaymentModal(true);
+      setShowLoginModal(false);
     }
-  }, [chatStatus.limit_reached, chatStatus.is_logged_in, chatStatus.is_paid]);
+  }, [isPaid, isGuestLimitReached, isUserLimitReached]);
 
-  const handleModalLogin = async (e) => {
-    e.preventDefault();
-    setModalError("");
-    setModalLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/login/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ email: modalEmail, password: modalPassword }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        localStorage.setItem("user_email", modalEmail);
-        localStorage.removeItem("smartbot_guest_messages_count");
-        await fetchChatStatus();
-        await fetchAuthUser();
-        setShowLoginModal(false);
-        setInputDisabled(false);
-      } else {
-        setModalError(data.message || "Invalid email or password");
-      }
-    } catch (err) {
-      setModalError("Failed to connect to server.");
-    } finally {
-      setModalLoading(false);
-    }
-  };
-
-  const handleModalUpgrade = async (planId) => {
-    const email = authUser ? authUser.email : (localStorage.getItem("user_email") || "Dhanush");
+  const handleUpgradeTo299 = async () => {
+    setPaymentLoading(true);
     try {
       const res = await loadRazorpayScript();
       if (!res) {
-        alert("Razorpay SDK failed to load. Are you offline?");
+        alert("Razorpay SDK failed to load. Please check your internet connection.");
+        setPaymentLoading(false);
         return;
       }
 
@@ -186,21 +172,22 @@ function ChatDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ plan_id: planId }),
+        body: JSON.stringify({ amount: 299, plan_name: "Unlimited Access" }),
       });
       const orderData = await orderResponse.json();
 
       if (!orderData.success) {
         alert(orderData.message || "Failed to initiate payment");
+        setPaymentLoading(false);
         return;
       }
 
       const options = {
-        key: orderData.key_id,
+        key: orderData.key_id || orderData.key,
         amount: orderData.amount,
-        currency: orderData.currency,
-        name: "AI Chatbot",
-        description: "Plan Upgrade",
+        currency: orderData.currency || "INR",
+        name: "SmartBot AI",
+        description: "Unlimited Access Plan (₹299)",
         order_id: orderData.order_id,
         handler: async function (response) {
           try {
@@ -212,52 +199,73 @@ function ChatDashboard() {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature,
-                plan_id: planId,
               }),
             });
             const verifyData = await verifyResponse.json();
             if (verifyData.success) {
-              alert(`Successfully upgraded to ${verifyData.subscription.plan}!`);
-              fetchChatStatus();
-              fetchAuthUser();
+              localStorage.setItem("smartbot_is_paid", "true");
+              alert("🎉 Payment successful! You now have Unlimited Access.");
+              await fetchChatStatus();
+              setShowPaymentModal(false);
             } else {
               alert(verifyData.message || "Payment verification failed");
             }
           } catch (err) {
             alert("Error verifying payment");
+          } finally {
+            setPaymentLoading(false);
           }
         },
-        prefill: { email: email },
         theme: { color: "#2563eb" },
+        modal: {
+          ondismiss: function () {
+            setPaymentLoading(false);
+          }
+        }
       };
 
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
     } catch (err) {
       alert("Error initiating payment. Please try again.");
+      setPaymentLoading(false);
     }
   };
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
 
     if (!input.trim()) return;
 
-    if (!chatStatus.is_logged_in && (chatStatus.guest_count >= 5 || chatStatus.limit_reached)) {
+    if (isGuestLimitReached) {
       setShowLoginModal(true);
-      setInputDisabled(true);
       return;
     }
 
-    addMessageToActiveChat(input);
+    if (isUserLimitReached) {
+      setShowPaymentModal(true);
+      return;
+    }
+
+    const currentText = input;
     setInput("");
+    const res = await addMessageToActiveChat(currentText);
+    if (res && !res.success) {
+      if (res.login_required) {
+        setShowLoginModal(true);
+      } else if (res.payment_required) {
+        setShowPaymentModal(true);
+      }
+    }
   };
 
-  const messages = activeChat ? activeChat.messages : [];
+  const messages = activeChat ? (activeChat.messages || []) : [];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const isInputDisabled = isGuestLimitReached || isUserLimitReached;
 
   return (
     <div className="chat-dashboard">
@@ -277,7 +285,7 @@ function ChatDashboard() {
             </button>
             <div className="brand-info">
               <h2>SmartBot</h2>
-              <p className="navbar-subtitle">ChatGPT style AI chatbot dashboard</p>
+              <p className="navbar-subtitle">AI Assistant</p>
             </div>
           </div>
 
@@ -291,19 +299,31 @@ function ChatDashboard() {
             >
               {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
             </button>
-            {chatStatus.is_logged_in && (
-              <span className="user-name-badge" title={authUser?.name || authUser?.username || "User"}>
-                👤 {(() => {
-                  const raw = authUser ? (authUser.name || authUser.username) : (localStorage.getItem("user_email")?.split("@")[0] || "User");
-                  return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "User";
-                })()}
+
+            {/* Access status indicator */}
+            {isPaid ? (
+              <span className="status-bar-indicator unlimited">
+                ✨ Unlimited Access
+              </span>
+            ) : isLoggedIn ? (
+              <span
+                className={`status-bar-indicator ${chatStatus?.remaining_chats === 0 ? "limit-alert" : ""}`}
+                onClick={() => { if (chatStatus?.remaining_chats === 0) setShowPaymentModal(true); }}
+                title={chatStatus?.remaining_chats === 0 ? "Click to Unlock Unlimited Access" : "Free chats remaining on your account"}
+                style={{ cursor: chatStatus?.remaining_chats === 0 ? "pointer" : "default" }}
+              >
+                💬 {chatStatus?.remaining_chats !== undefined ? chatStatus.remaining_chats : 5} Free {chatStatus?.remaining_chats === 1 ? "Chat" : "Chats"}
+              </span>
+            ) : (
+              <span
+                className={`status-bar-indicator ${chatStatus?.remaining_chats === 0 ? "limit-alert" : ""}`}
+                onClick={() => { if (chatStatus?.remaining_chats === 0) setShowLoginModal(true); }}
+                title={chatStatus?.remaining_chats === 0 ? "Click to Sign Up / Log In" : "Free guest chats remaining"}
+                style={{ cursor: chatStatus?.remaining_chats === 0 ? "pointer" : "default" }}
+              >
+                💬 {chatStatus?.remaining_chats !== undefined ? chatStatus.remaining_chats : 3} Free {chatStatus?.remaining_chats === 1 ? "Chat" : "Chats"}
               </span>
             )}
-            <span className={`status-bar-indicator ${chatStatus.is_logged_in ? "unlimited" : ""}`}>
-              {chatStatus.is_logged_in
-                ? "✨ Unlimited"
-                : `💬 ${chatStatus.remaining_chats} Free`}
-            </span>
           </div>
         </header>
 
@@ -311,6 +331,19 @@ function ChatDashboard() {
           {messages.length === 0 ? (
             <div className="empty-chat">
               <h1>How can I help you today?</h1>
+              {isPaid ? (
+                <p style={{ color: "#34d399", fontSize: "14px", marginTop: "8px" }}>
+                  ✨ Unlimited Access active. Ask anything to begin!
+                </p>
+              ) : isLoggedIn ? (
+                <p style={{ color: "#94a3b8", fontSize: "14px", marginTop: "8px" }}>
+                  You have <strong>{chatStatus?.remaining_chats !== undefined ? chatStatus.remaining_chats : 5} free chats</strong> remaining on your account.
+                </p>
+              ) : (
+                <p style={{ color: "#94a3b8", fontSize: "14px", marginTop: "8px" }}>
+                  You have <strong>{chatStatus?.remaining_chats !== undefined ? chatStatus.remaining_chats : 3} free guest chats</strong>. Ask anything to begin!
+                </p>
+              )}
             </div>
           ) : (
             messages.map((msg, index) => (
@@ -324,87 +357,119 @@ function ChatDashboard() {
           <div className="chat-input-box">
             <input
               type="text"
-              placeholder={(!chatStatus.is_logged_in && chatStatus.limit_reached) ? "Limit reached. Log in to continue." : "Message SmartBot..."}
+              placeholder={
+                isGuestLimitReached
+                  ? "Guest limit reached (3 chats). Sign up or log in for 5 more free chats."
+                  : isUserLimitReached
+                  ? "Free limit reached (5 chats). Upgrade to Unlimited Access for ₹299."
+                  : "Message SmartBot..."
+              }
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={!chatStatus.is_logged_in && chatStatus.limit_reached}
+              disabled={isInputDisabled}
+              onClick={() => {
+                if (isGuestLimitReached) setShowLoginModal(true);
+                else if (isUserLimitReached) setShowPaymentModal(true);
+              }}
             />
 
-            <button className="send-button" disabled={!chatStatus.is_logged_in && chatStatus.limit_reached}>➤</button>
+            <button
+              className="send-button"
+              type="submit"
+              disabled={isInputDisabled}
+              title={
+                isGuestLimitReached
+                  ? "Sign up or log in to continue"
+                  : isUserLimitReached
+                  ? "Upgrade to ₹299 Unlimited Access"
+                  : "Send message"
+              }
+            >
+              ➤
+            </button>
           </div>
         </form>
       </main>
 
-      {/* Login Modal */}
+      {/* 1. Login / Sign Up Modal for Guests after 3 chats */}
       {showLoginModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Login Required</h3>
-            <p>You have reached the guest limit of 5 free prompts. Please log in or sign up to unlock ✨ Unlimited Access!</p>
-            
-            <form onSubmit={handleModalLogin} className="modal-form">
-              {modalError && <div style={{ color: "#ef4444", fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>{modalError}</div>}
-              
-              <label>Email</label>
-              <input 
-                type="email" 
-                placeholder="Enter your email" 
-                required 
-                value={modalEmail}
-                onChange={(e) => setModalEmail(e.target.value)}
-              />
-              
-              <label>Password</label>
-              <input 
-                type="password" 
-                placeholder="Enter your password" 
-                required 
-                value={modalPassword}
-                onChange={(e) => setModalPassword(e.target.value)}
-              />
-              
-              <button type="submit" className="modal-btn primary" disabled={modalLoading}>
-                {modalLoading ? "Logging in..." : "Login to Continue"}
+        <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-badge-tag">🔒 3 FREE GUEST CHATS USED</div>
+            <h3>Create a Free Account</h3>
+            <p>
+              You've used your <strong>3 free guest chats</strong>! Sign up or log in now to unlock <strong>5 more free chats</strong> on your account.
+            </p>
+
+            <div className="auth-modal-perks">
+              <div className="perk-item">
+                <span className="perk-icon">🎁</span>
+                <span><strong>5 Free Chats</strong> added to your account</span>
+              </div>
+              <div className="perk-item">
+                <span className="perk-icon">💾</span>
+                <span>Save and restore all chat histories</span>
+              </div>
+              <div className="perk-item">
+                <span className="perk-icon">⚡</span>
+                <span>Access high-speed Groq AI models</span>
+              </div>
+            </div>
+
+            <div className="modal-actions-column">
+              <button
+                type="button"
+                className="modal-btn primary"
+                onClick={() => navigate("/signup")}
+              >
+                ✨ Sign Up Free (Get 5 Chats) →
               </button>
-            </form>
-            
-            <Link to="/signup" className="modal-btn secondary" style={{ display: "block", textDecoration: "none", textAlign: "center" }}>
-              Don't have an account? Sign Up
-            </Link>
+              <button
+                type="button"
+                className="modal-btn secondary"
+                onClick={() => navigate("/login")}
+              >
+                🔑 Log In to Existing Account
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Subscription Modal */}
-      {chatStatus.limit_reached && chatStatus.is_logged_in && !chatStatus.is_paid && (
-        <div className="modal-overlay">
-          <div className="modal-content wide">
-            <h3>Upgrade to Premium</h3>
-            <p>You have exhausted your 5 additional free chats. Subscribe now to unlock unlimited access!</p>
-            
-            <div className="modal-plans-grid">
-              {plans.map((plan) => (
-                <div key={plan.id} className={`modal-plan-card ${plan.featured ? "featured" : ""}`}>
-                  <div>
-                    <h4>{plan.title}</h4>
-                    <p className="desc">{plan.desc}</p>
-                  </div>
-                  <div>
-                    <div className="price">{plan.price}</div>
-                    <p style={{ fontSize: "11px", color: "#94a3b8", margin: "4px 0 12px" }}>{plan.note}</p>
-                    {plan.title === "Plus" ? (
-                      <button disabled style={{ opacity: 0.6, cursor: "not-allowed" }}>Current Free Plan</button>
-                    ) : (
-                      <button onClick={() => handleModalUpgrade(plan.id)}>Subscribe</button>
-                    )}
-                  </div>
-                </div>
-              ))}
+      {/* 2. ₹299 Payment Modal for Logged-In Users after 5 chats */}
+      {showPaymentModal && (
+        <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
+          <div className="modal-content premium-pay-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-badge-tag gold">⚡ UNLIMITED ACCESS</div>
+            <h3>Upgrade to Unlimited Access</h3>
+            <p>
+              You've used your <strong>5 free chats</strong>. Pay just <strong>₹299</strong> to unlock unlimited AI chats forever without any limits!
+            </p>
+
+            <div className="price-highlight-box">
+              <div className="price-tag-big">₹299</div>
+              <div className="price-subtitle">One-Time Payment • Instant Lifetime Access</div>
             </div>
-            
-            <Link to="/chat" className="modal-btn secondary" style={{ display: "inline-block", textDecoration: "none", marginTop: "24px" }} onClick={() => window.location.reload()}>
-              Close
-            </Link>
+
+            <ul className="modal-features-list">
+              <li>⚡ <strong>Unlimited AI Messages</strong> & instant replies</li>
+              <li>🚀 <strong>High-Speed Groq AI</strong> intelligence models</li>
+              <li>💬 <strong>Permanent Chat History</strong> & session retention</li>
+              <li>🛡️ <strong>Zero recurring charges</strong> (Single one-time payment)</li>
+            </ul>
+
+            <button
+              type="button"
+              className="modal-btn primary pay-299-btn"
+              onClick={handleUpgradeTo299}
+              disabled={paymentLoading}
+            >
+              {paymentLoading ? "Connecting to Razorpay..." : "💳 Pay ₹299 with Razorpay"}
+            </button>
+
+            <p style={{ fontSize: "12px", color: "#64748b", margin: "14px 0 0" }}>
+              🔒 100% Safe, Secure & Encrypted Checkout via Razorpay
+            </p>
           </div>
         </div>
       )}

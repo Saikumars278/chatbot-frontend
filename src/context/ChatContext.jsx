@@ -3,7 +3,6 @@ import { API_BASE_URL as API } from "../config";
 
 const ChatContext = createContext();
 
-
 export function ChatProvider({ children }) {
   // ── Chat list ────────────────────────────────────────────────────────────
   const [chats, setChats] = useState(() => {
@@ -35,7 +34,6 @@ export function ChatProvider({ children }) {
   const activeChat = chats.find((c) => c.id === activeChatId) || chats[0] || null;
 
   const createNewChat = () => {
-    // Prevent duplicate New Chat sessions: check if an empty/unstarted chat already exists
     const emptyChat = chats.find(
       (c) => (c.title === "New Chat" || c.title === "Guest Chat") && !c.messages.some((m) => m.type === "user")
     );
@@ -50,7 +48,7 @@ export function ChatProvider({ children }) {
       id: newChatId,
       title: "New Chat",
       messages: [
-        { type: "bot", text: "Hello! Started a new chat. How can I help you?" }
+        { type: "bot", text: "Hello! Started a new chat. How can I help you today?" }
       ]
     };
     setChats([newChat, ...chats]);
@@ -77,14 +75,25 @@ export function ChatProvider({ children }) {
   };
 
   // ── Auth user ────────────────────────────────────────────────────────────
-  const [authUser, setAuthUser] = useState(null);   // { name, email, plan, avatar }
+  const [authUser, setAuthUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   const fetchAuthUser = async () => {
     try {
       const res = await fetch(`${API}/user-profile/`, { credentials: "include" });
       const data = await res.json();
-      setAuthUser(data.success ? data.user : null);
+      if (data.success && data.user) {
+        const userObj = {
+          ...data.user,
+          is_paid: !!data.user.is_paid && data.user.subscription_status === "active"
+        };
+        setAuthUser(userObj);
+        if (!userObj.is_paid) {
+          localStorage.removeItem("smartbot_is_paid");
+        }
+      } else {
+        setAuthUser(null);
+      }
     } catch {
       setAuthUser(null);
     } finally {
@@ -94,13 +103,25 @@ export function ChatProvider({ children }) {
 
   useEffect(() => { fetchAuthUser(); }, []);
 
-  // ── Chat / access status ─────────────────────────────────────────────────
-  const [chatStatus, setChatStatus] = useState({
-    remaining_chats: 2,
-    limit_reached: false,
-    is_logged_in: false,
-    is_paid: false,
-    status_text: "2 remaining free chats"
+  // ── Access & Payment Status (Strict: Guest 3 chats, User 5 chats, Paid Unlimited) ─
+  const [chatStatus, setChatStatus] = useState(() => {
+    const hasSavedUser = !!localStorage.getItem("user_email");
+    return {
+      is_loading: true,
+      is_authenticated: hasSavedUser,
+      is_logged_in: hasSavedUser,
+      is_paid: false,
+      subscription_status: "inactive",
+      remaining_chats: hasSavedUser ? 5 : 3,
+      free_chats_remaining: hasSavedUser ? 5 : 3,
+      guest_count: 0,
+      user_count: 0,
+      max_chats: hasSavedUser ? 5 : 3,
+      limit_reached: false,
+      login_required: false,
+      payment_required: false,
+      status_text: hasSavedUser ? "5 Free Chats" : "3 Free Chats"
+    };
   });
 
   const fetchChatStatus = async () => {
@@ -110,25 +131,83 @@ export function ChatProvider({ children }) {
       });
       const data = await res.json();
       if (data.success) {
-        if (data.is_logged_in) {
-          localStorage.removeItem("smartbot_guest_messages_count");
-          setChatStatus(data);
-        } else {
-          const localCount = parseInt(localStorage.getItem("smartbot_guest_messages_count") || "0", 10);
-          const effectiveCount = Math.max(data.guest_count || 0, localCount);
-          const maxGuestChats = 5;
-          const remaining = Math.max(0, maxGuestChats - effectiveCount);
+        const isAuth = !!(data.is_authenticated || data.is_logged_in);
+        // STRICT: Only grant unlimited access if is_paid is true AND database subscription_status is 'active'
+        const isPaid = !!data.is_paid && data.subscription_status === "active";
+
+        if (isPaid) {
+          localStorage.setItem("smartbot_is_paid", "true");
           setChatStatus({
-            ...data,
-            guest_count: effectiveCount,
-            remaining_chats: remaining,
-            limit_reached: effectiveCount >= maxGuestChats,
-            status_text: remaining > 0 ? `${remaining} remaining free chats` : "Login required"
+            is_loading: false,
+            is_authenticated: true,
+            is_logged_in: true,
+            is_paid: true,
+            subscription_status: "active",
+            remaining_chats: "unlimited",
+            free_chats_remaining: "unlimited",
+            guest_count: 0,
+            user_count: 0,
+            max_chats: "unlimited",
+            limit_reached: false,
+            login_required: false,
+            payment_required: false,
+            status_text: "Unlimited Access"
           });
+        } else {
+          // STRICT: An unpaid user must NEVER have a paid token in localStorage
+          localStorage.removeItem("smartbot_is_paid");
+
+          if (isAuth) {
+            const userCount = typeof data.user_count === "number" ? data.user_count : 0;
+            const remaining = typeof data.free_chats_remaining === "number"
+              ? data.free_chats_remaining
+              : (typeof data.remaining_chats === "number" ? data.remaining_chats : Math.max(0, 5 - userCount));
+            const isLimit = remaining <= 0 || !!data.limit_reached || !!data.payment_required;
+
+            setChatStatus({
+              is_loading: false,
+              is_authenticated: true,
+              is_logged_in: true,
+              is_paid: false,
+              subscription_status: "inactive",
+              user_count: userCount,
+              guest_count: 0,
+              max_chats: 5,
+              remaining_chats: remaining,
+              free_chats_remaining: remaining,
+              limit_reached: isLimit,
+              login_required: false,
+              payment_required: isLimit,
+              status_text: remaining > 0 ? `${remaining} Free Chats Remaining` : "Payment Required (₹299)"
+            });
+          } else {
+            const localCount = parseInt(localStorage.getItem("smartbot_guest_messages_count") || "0", 10);
+            const guestCount = Math.max(typeof data.guest_count === "number" ? data.guest_count : 0, localCount);
+            const remaining = Math.max(0, 3 - guestCount);
+            const isLimit = remaining <= 0 || !!data.limit_reached || !!data.login_required;
+
+            setChatStatus({
+              is_loading: false,
+              is_authenticated: false,
+              is_logged_in: false,
+              is_paid: false,
+              subscription_status: "none",
+              guest_count: guestCount,
+              user_count: 0,
+              max_chats: 3,
+              remaining_chats: remaining,
+              free_chats_remaining: remaining,
+              limit_reached: isLimit,
+              login_required: isLimit,
+              payment_required: false,
+              status_text: remaining > 0 ? `${remaining} Free Chats` : "Login Required"
+            });
+          }
         }
       }
     } catch (err) {
       console.error("Error fetching chat status:", err);
+      setChatStatus((prev) => ({ ...prev, is_loading: false }));
     }
   };
 
@@ -138,8 +217,7 @@ export function ChatProvider({ children }) {
 
   const addMessageToActiveChat = async (userText) => {
     let currentActiveId = activeChatId;
-    
-    // Create chat on the fly if none exists
+
     if (!currentActiveId) {
       const newChatId = "chat-" + Date.now();
       const newChat = {
@@ -152,7 +230,7 @@ export function ChatProvider({ children }) {
       currentActiveId = newChatId;
     }
 
-    // 1. Add User message instantly in local UI state
+    // 1. Instantly display user prompt in chat
     setChats((prevChats) =>
       prevChats.map((c) => {
         if (c.id === currentActiveId) {
@@ -160,12 +238,10 @@ export function ChatProvider({ children }) {
             ...c.messages,
             { type: "user", text: userText }
           ];
-          
           let title = c.title;
           if (c.title === "New Chat" && userText) {
             title = userText.length > 25 ? userText.substring(0, 25) + "..." : userText;
           }
-
           return {
             ...c,
             title,
@@ -176,7 +252,7 @@ export function ChatProvider({ children }) {
       })
     );
 
-    // 2. Fetch reply from backend server api
+    // 2. Send to backend
     try {
       const response = await fetch(`${API}/messages/send/`, {
         method: "POST",
@@ -187,12 +263,19 @@ export function ChatProvider({ children }) {
         body: JSON.stringify({ message: userText })
       });
       const data = await response.json();
+
+      if (!data.success && (data.limit_reached || data.login_required || data.payment_required)) {
+        await fetchChatStatus();
+        return data;
+      }
+
       if (data.success && data.bot_message) {
         const isError = typeof data.bot_message.text === "string" && (
           data.bot_message.text.includes("Sorry, I couldn't generate a response") ||
           data.bot_message.text.startsWith("Error:")
         );
-        if (!chatStatus.is_logged_in && !isError) {
+        // Only increment guest counter in localStorage if truly an unauthenticated guest
+        if (!chatStatus.is_paid && !chatStatus.is_logged_in && !chatStatus.is_authenticated && !isError) {
           const currentCount = parseInt(localStorage.getItem("smartbot_guest_messages_count") || "0", 10);
           localStorage.setItem("smartbot_guest_messages_count", (currentCount + 1).toString());
         }
@@ -210,10 +293,10 @@ export function ChatProvider({ children }) {
             return c;
           })
         );
+        return data;
       }
     } catch (err) {
       console.error("Error communicating with backend chatbot API:", err);
-      // Fallback
       setChats((prevChats) =>
         prevChats.map((c) => {
           if (c.id === currentActiveId) {
@@ -229,7 +312,7 @@ export function ChatProvider({ children }) {
         })
       );
     } finally {
-      fetchChatStatus();
+      await fetchChatStatus();
     }
   };
 
@@ -258,14 +341,11 @@ export function ChatProvider({ children }) {
         selectChat,
         clearAllChats,
         addMessageToActiveChat,
-        // theme
         theme,
         toggleTheme,
-        // auth
         authUser,
         authLoading,
         fetchAuthUser,
-        // limits
         chatStatus,
         fetchChatStatus
       }}

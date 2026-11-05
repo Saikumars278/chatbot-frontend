@@ -14,7 +14,7 @@ function Sidebar({ open: propOpen, setOpen: propSetOpen }) {
 
   const navigate = useNavigate();
 
-  const { chats, activeChatId, createNewChat, deleteChat, selectChat, authUser, authLoading, fetchAuthUser, fetchChatStatus, clearAllChats, theme, toggleTheme } = useChat();
+  const { chats, activeChatId, createNewChat, deleteChat, selectChat, authUser, authLoading, fetchAuthUser, chatStatus, fetchChatStatus, clearAllChats, theme, toggleTheme } = useChat();
 
   const toggleMenu = (index) => {
     setUserMenuOpen(false);
@@ -40,6 +40,7 @@ function Sidebar({ open: propOpen, setOpen: propSetOpen }) {
     }
 
     localStorage.removeItem("smartbot_guest_messages_count");
+    localStorage.removeItem("smartbot_is_paid");
     localStorage.removeItem("user_email");
     clearAllChats();
     await fetchAuthUser();
@@ -208,7 +209,23 @@ function Sidebar({ open: propOpen, setOpen: propSetOpen }) {
                   <p className="user-email" title={authUser?.email || localStorage.getItem("user_email")}>
                     {authUser?.email || localStorage.getItem("user_email") || "Logged In"}
                   </p>
-                  <p className="user-plan-badge">{authUser?.plan || "Unlimited Access"}</p>
+                  {(chatStatus?.is_paid || authUser?.is_paid) ? (
+                    <p className="user-plan-badge unlimited">✨ Unlimited Access</p>
+                  ) : (
+                    <>
+                      <p className="user-plan-badge">
+                        Free Plan ({chatStatus?.remaining_chats !== undefined ? chatStatus.remaining_chats : 5} left)
+                      </p>
+                      <button
+                        type="button"
+                        className="sidebar-upgrade-link-btn"
+                        onClick={() => navigate("/payment")}
+                        title="Upgrade to Unlimited Access"
+                      >
+                        ⚡ Upgrade (₹299)
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="user-profile-actions">

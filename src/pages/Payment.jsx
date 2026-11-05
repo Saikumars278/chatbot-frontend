@@ -6,7 +6,7 @@ import { API_BASE_URL } from "../config";
 import "../Style/Payment.css";
 
 function Payment() {
-  const { authUser, authLoading } = useChat();
+  const { authUser, authLoading, fetchChatStatus, fetchAuthUser } = useChat();
   const navigate = useNavigate();
 
   const [plans, setPlans] = useState([]);
@@ -89,7 +89,11 @@ function Payment() {
             });
             const verifyData = await verifyResponse.json();
             if (verifyData.success) {
-              alert(`Successfully upgraded to ${verifyData.subscription.plan}!`);
+              localStorage.setItem("smartbot_is_paid", "true");
+              alert("🎉 Successfully upgraded to Unlimited Access!");
+              if (fetchChatStatus) await fetchChatStatus();
+              if (fetchAuthUser) await fetchAuthUser();
+              navigate("/chat");
             } else {
               alert(verifyData.message || "Payment verification failed");
             }
@@ -116,6 +120,8 @@ function Payment() {
   const getFeatures = (title) => {
     if (title === "Plus") {
       return ["Advanced models", "Image creation", "Codex coding agent", "Projects and custom GPTs"];
+    } else if (title === "Unlimited Access") {
+      return ["Unlimited AI Chat messages", "High-speed Groq AI models", "Complete chat history", "Zero recurring charges"];
     } else if (title === "Business") {
       return ["Team workspace", "Admin controls", "Billing management", "Company knowledge"];
     } else {
