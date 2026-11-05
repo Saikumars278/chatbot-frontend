@@ -163,10 +163,9 @@ function Payment() {
         </div>
 
         <div className="payment-header-section">
-          <span className="payment-badge-tag">⚡ FLEXIBLE PLANS</span>
           <h1>Upgrade Your Plan</h1>
           <p className="payment-subtitle">
-            Choose the plan that fits your workflows and unlock unlimited AI intelligence.
+            Choose the plan that fits your workflows and team collaboration.
           </p>
         </div>
 
@@ -192,7 +191,7 @@ function Payment() {
                 >
                   {isFeatured && (
                     <div className="featured-pill-badge">
-                      <span>⭐ POPULAR</span>
+                      <span>POPULAR</span>
                     </div>
                   )}
 

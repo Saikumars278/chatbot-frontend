@@ -1,19 +1,18 @@
 /* ============================================================
-   Payment Page Styling - Premium SaaS Glassmorphism
+   Payment Page Styling - Compact, Responsive SaaS Design
    ============================================================ */
 
 .payment-page {
   min-height: 100vh;
   width: 100%;
-  padding: 40px 24px 90px 24px;
+  padding: 24px 20px 48px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   box-sizing: border-box;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(30, 58, 138, 0.3) 0%, transparent 70%),
-    linear-gradient(rgba(5, 12, 28, 0.94), rgba(5, 12, 28, 0.98)),
+    linear-gradient(rgba(5, 15, 35, 0.88), rgba(5, 15, 35, 0.92)),
     url("https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=80");
   background-size: cover;
   background-position: center;
@@ -22,92 +21,67 @@
 }
 
 .payment-container {
-  max-width: 1120px;
+  max-width: 1060px;
   width: 100%;
   margin: 0 auto;
-  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: fadeUp 0.5s ease;
 }
 
 /* --- Top Navigation --- */
 .payment-top-nav {
   display: flex;
   justify-content: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 18px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
-  color: #cbd5e1;
+  gap: 6px;
+  color: #93c5fd;
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
-  backdrop-filter: blur(8px);
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .back-link:hover {
-  background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.25);
   transform: translateX(-3px);
 }
 
 /* --- Header Section --- */
 .payment-header-section {
   text-align: center;
-  margin-bottom: 40px;
-}
-
-.payment-badge-tag {
-  display: inline-block;
-  padding: 4px 14px;
-  border-radius: 9999px;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  color: #60a5fa;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
 .payment-header-section h1 {
   color: #ffffff;
-  font-size: 38px;
+  font-size: 32px;
   font-weight: 800;
-  margin: 0 0 10px 0;
-  letter-spacing: -0.6px;
-  background: linear-gradient(180deg, #ffffff 30%, #cbd5e1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
 }
 
 .payment-subtitle {
   color: #94a3b8;
-  font-size: 16px;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.5;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.4;
 }
 
 /* --- Loading / Error States --- */
 .payment-loading-state {
   text-align: center;
-  padding: 60px 20px;
+  padding: 40px 20px;
   color: #94a3b8;
 }
 
 .payment-spinner {
-  width: 36px;
-  height: 36px;
-  margin: 0 auto 16px;
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 12px;
   border: 3px solid rgba(255, 255, 255, 0.1);
   border-top-color: #3b82f6;
   border-radius: 50%;
@@ -120,131 +94,138 @@
 
 .payment-error-state {
   text-align: center;
-  padding: 24px;
-  margin: 30px auto;
-  max-width: 500px;
+  padding: 16px 20px;
+  margin: 20px auto;
+  max-width: 480px;
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 14px;
+  border-radius: 12px;
   color: #fca5a5;
-  font-size: 15px;
+  font-size: 14px;
 }
 
-/* --- Pricing Cards Grid --- */
+/* --- Cards Grid Layout --- */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
   align-items: stretch;
   width: 100%;
-  margin-bottom: 36px;
+  margin-bottom: 20px;
 }
 
-/* --- Individual Pricing Card --- */
+/* --- Base Pricing Card --- */
 .pricing-card {
   position: relative;
-  background: rgba(15, 23, 42, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 22px;
-  padding: 34px 28px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(16px);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 20px;
+  padding: 24px 22px 20px 22px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.32);
+  color: #0f172a;
   display: flex;
   flex-direction: column;
-  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   box-sizing: border-box;
 }
 
 .pricing-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 26px 55px rgba(0, 0, 0, 0.52);
-  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
 
-/* Featured / Student Card Glow */
+/* Featured / Student Card (Dark Navy Blue) */
 .pricing-card.featured-card {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(37, 99, 235, 0.25) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(20, 35, 75, 0.92) 0%, rgba(13, 21, 46, 0.96) 100%);
-  border: 1.5px solid rgba(59, 130, 246, 0.65);
-  box-shadow: 0 0 32px rgba(37, 99, 235, 0.28), 0 24px 50px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(
+    145deg,
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(30, 64, 175, 0.82) 65%,
+    rgba(15, 23, 42, 0.95) 100%
+  );
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45), 0 0 25px rgba(37, 99, 235, 0.25);
+  backdrop-filter: blur(16px);
 }
 
 .pricing-card.featured-card:hover {
-  border-color: rgba(96, 165, 250, 0.9);
-  box-shadow: 0 0 45px rgba(37, 99, 235, 0.4), 0 30px 60px rgba(0, 0, 0, 0.55);
+  border-color: rgba(96, 165, 250, 0.5);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.55), 0 0 35px rgba(37, 99, 235, 0.35);
 }
 
-/* Popular Badge */
+/* Top Right Popular Badge */
 .featured-pill-badge {
   position: absolute;
-  top: -13px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 14px;
+  right: 16px;
   background: linear-gradient(135deg, #facc15, #eab308);
   color: #0f172a;
-  padding: 5px 16px;
-  border-radius: 9999px;
-  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.6px;
   text-transform: uppercase;
-  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.4);
-  white-space: nowrap;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(250, 204, 21, 0.35);
 }
 
-/* --- Card Header Block (Equal Height) --- */
+/* --- Card Header Block (Uniform Height) --- */
 .card-header-block {
-  min-height: 76px;
-  margin-bottom: 12px;
+  min-height: 52px;
+  margin-bottom: 6px;
 }
 
 .plan-title {
-  margin: 0 0 8px 0;
-  font-size: 24px;
+  margin: 0 0 4px 0;
+  font-size: 20px;
   font-weight: 800;
+  color: #0f172a;
+}
+
+.featured-card .plan-title {
   color: #ffffff;
-  letter-spacing: -0.3px;
 }
 
 .plan-description {
   margin: 0;
-  color: #94a3b8;
-  font-size: 13.5px;
-  line-height: 1.45;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .featured-card .plan-description {
-  color: #bfdbfe;
+  color: #cbd5e1;
 }
 
-/* --- Card Price Block (Equal Height) --- */
+/* --- Card Price Block (Uniform Height) --- */
 .card-price-block {
-  min-height: 68px;
+  min-height: 54px;
   display: flex;
   align-items: baseline;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .price-display {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .price-number {
-  font-size: 42px;
+  font-size: 34px;
   font-weight: 900;
-  color: #ffffff;
-  letter-spacing: -1.2px;
+  color: #0f172a;
+  letter-spacing: -0.8px;
   line-height: 1;
 }
 
+.featured-card .price-number {
+  color: #ffffff;
+}
+
 .price-frequency {
-  color: #94a3b8;
-  font-size: 13.5px;
+  color: #64748b;
+  font-size: 12.5px;
   font-weight: 500;
 }
 
@@ -252,71 +233,68 @@
   color: #cbd5e1;
 }
 
-/* --- Card Action CTA Button (Equal Height) --- */
+/* --- Card Action Block --- */
 .card-action-block {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .plan-btn {
   width: 100%;
-  height: 48px;
-  border-radius: 12px;
+  height: 40px;
+  border-radius: 10px;
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: 13.5px;
   cursor: pointer;
   border: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
-/* Standard button (Business) */
+/* Business CTA */
 .btn-standard {
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #0f172a, #1e293b);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.2);
 }
 
 .btn-standard:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 5px 15px rgba(15, 23, 42, 0.35);
+  filter: brightness(1.1);
 }
 
-/* Featured button (Student) */
+/* Student CTA (Vibrant Blue Gradient) */
 .btn-featured {
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  background: linear-gradient(135deg, #1d4ed8, #2563eb, #38bdf8);
   color: #ffffff;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 5px 16px rgba(37, 99, 235, 0.4);
 }
 
 .btn-featured:hover {
-  background: linear-gradient(135deg, #1d4ed8, #2563eb);
-  box-shadow: 0 8px 26px rgba(37, 99, 235, 0.55);
   transform: translateY(-2px);
+  box-shadow: 0 7px 22px rgba(37, 99, 235, 0.55);
 }
 
-/* Current Plan (Disabled / Free) */
+/* Current Plan (Disabled Free) */
 .btn-current {
-  background: rgba(255, 255, 255, 0.05);
+  background: #e2e8f0;
   color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: default;
 }
 
-/* --- Card Divider Line --- */
+/* --- Divider Line --- */
 .card-divider-line {
   height: 1px;
-  background: rgba(255, 255, 255, 0.09);
+  background: #f1f5f9;
   width: 100%;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
 .featured-card .card-divider-line {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* --- Features Block --- */
@@ -327,16 +305,7 @@
 }
 
 .features-header-text {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  color: #64748b;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-.featured-card .features-header-text {
-  color: #93c5fd;
+  display: none;
 }
 
 .features-list {
@@ -345,48 +314,45 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 8px;
   flex: 1;
 }
 
 .feature-item {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 13.5px;
-  line-height: 1.45;
-  color: #cbd5e1;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #334155;
+  font-weight: 500;
+}
+
+.featured-card .feature-item {
+  color: #e2e8f0;
 }
 
 .check-bullet {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  border-radius: 50%;
-  background: rgba(16, 185, 129, 0.15);
   color: #10b981;
-  font-size: 12px;
   font-weight: 800;
-  margin-top: 1px;
+  font-size: 14px;
+  min-width: 14px;
+  line-height: 1;
 }
 
 .featured-card .check-bullet {
-  background: rgba(52, 211, 153, 0.22);
   color: #34d399;
 }
 
 .feature-text {
-  color: #e2e8f0;
+  flex: 1;
 }
 
 /* --- Footer Security Note --- */
 .payment-footer-note {
   text-align: center;
-  color: #64748b;
-  font-size: 13px;
+  color: #94a3b8;
+  font-size: 12.5px;
   margin-top: 10px;
 }
 
@@ -394,7 +360,7 @@
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -403,11 +369,11 @@
 }
 
 /* --- Responsive Breakpoints --- */
-@media (max-width: 980px) {
+@media (max-width: 960px) {
   .cards-grid {
     grid-template-columns: 1fr;
-    max-width: 440px;
-    margin: 0 auto 36px auto;
+    max-width: 400px;
+    margin: 0 auto 24px auto;
   }
 
   .pricing-card.featured-card {
@@ -415,20 +381,20 @@
   }
 
   .payment-header-section h1 {
-    font-size: 32px;
+    font-size: 28px;
   }
 }
 
 @media (max-width: 480px) {
   .payment-page {
-    padding: 24px 16px 60px 16px;
+    padding: 16px 12px 40px 12px;
   }
 
   .pricing-card {
-    padding: 26px 20px;
+    padding: 20px 16px;
   }
 
   .price-number {
-    font-size: 36px;
+    font-size: 30px;
   }
 }
